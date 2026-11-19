@@ -98,4 +98,4 @@ self.addEventListener('fetch', event => {
 });
 
 // Modul khusus Reload Data.
-importScripts('./global/reload/sw-reload.js');
+importScripts('./app/global/reload/sw-reload.js');
