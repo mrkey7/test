@@ -2,7 +2,8 @@
 // seluruh file berhasil diunduh dan diverifikasi.
 // Pemeriksaan skip rules hanya dilakukan di dalam proses RELOAD_DATA.
 self.addEventListener('message', event => {
-  if (event.data?.type !== 'RELOAD_DATA') return;
+  const forceFull = event.data?.type === 'RELOAD_DATA_FORCE';
+  if (!forceFull && event.data?.type !== 'RELOAD_DATA') return;
   const port = event.ports?.[0];
 
   event.waitUntil((async () => {
@@ -21,8 +22,8 @@ self.addEventListener('message', event => {
       // Konfigurasi skip dibaca dari cache lama hanya saat cache lama tersedia.
       // Jika cache lama tidak ada, semua file akan diunduh tanpa menerapkan skip.
       let skipRules = [];
-      if (previous) {
-        const configUrl = new URL('./global/reload/reload.json', self.registration.scope).href;
+      if (previous && !forceFull) {
+        const configUrl = new URL('./app/global/reload/reload.json', self.registration.scope).href;
         const configResponse = await previous.match(configUrl);
         if (configResponse) {
           try {
@@ -35,14 +36,14 @@ self.addEventListener('message', event => {
       }
 
       function matchesSkipRule(path) {
-        const normalizedPath = String(path).replace(/\\/g, '/').replace(/^\\/+/, '');
+        const normalizedPath = String(path).replace(/^\/+/, '');
         const rules = Array.isArray(skipRules) ? skipRules : [];
 
         // Prioritas pertama: folder. Jika cocok, aturan lain tidak perlu diperiksa.
         const folderRule = rules.find(rule =>
           rule?.type === 'folder' &&
           (Array.isArray(rule.value) ? rule.value : [rule.value]).some(value => {
-            const folder = String(value || '').replace(/\\/g, '/').replace(/^\\/+|\\/+$/g, '');
+            const folder = String(value || '').replace(/^\/+|\/+$/g, '');
             return folder && (normalizedPath === folder || normalizedPath.startsWith(folder + '/'));
           })
         );
@@ -51,7 +52,7 @@ self.addEventListener('message', event => {
         const fileRule = rules.find(rule =>
           rule?.type === 'file' &&
           (Array.isArray(rule.value) ? rule.value : [rule.value]).some(value =>
-            String(value || '').replace(/\\/g, '/').replace(/^\\/+/, '') === normalizedPath
+            String(value || '').replace(/^\/+/, '') === normalizedPath
           )
         );
         if (fileRule) return true;
@@ -77,7 +78,7 @@ self.addEventListener('message', event => {
 
       for (const path of urls) {
         const url = new URL(path, self.registration.scope).href;
-        const shouldSkip = hasPreviousCache && matchesSkipRule(path);
+        const shouldSkip = !forceFull && hasPreviousCache && matchesSkipRule(path);
 
         // Skip hanya menggunakan cache lama jika file yang dimaksud benar-benar ada.
         // Cache lama yang hilang atau file yang tidak ada tetap akan diunduh.
