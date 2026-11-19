@@ -876,19 +876,9 @@
         detail(text) {
           if (!detailed) overlay.querySelector('.reload-progress-detail').textContent = text;
         },
-        file(path, status) {
-          if (!detailed) return;
-          const row = document.createElement('div');
-          row.className = 'reload-progress-file';
-          const name = document.createElement('span');
-          name.className = 'reload-progress-file-name';
-          name.textContent = path;
-          const state = document.createElement('span');
-          state.className = 'reload-progress-file-status';
-          state.textContent = status;
-          row.append(name, state);
-          fileList.appendChild(row);
-          fileList.scrollTop = fileList.scrollHeight;
+        file() {
+          // Daftar file ditambahkan satu kali melalui update() agar nomor,
+          // path, dan status selalu berada pada satu baris yang sama.
         },
         finish(ok) {
           overlay.querySelector('.reload-progress-title').textContent = ok ? 'Reload Data berhasil' : 'Reload Data gagal. Data lama tetap digunakan';
