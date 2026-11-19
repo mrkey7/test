@@ -151,11 +151,13 @@
       localStorage.setItem('istighosah-gesture-enabled', String(gestureEnabled));
     });
 
-    window.addEventListener('istighosah:settings-reset', () => {
+    menuPanel.addEventListener('click', event => {
+      const reset = event.target.closest('[data-setting-id="resetSetting"]');
+      if (!reset) return;
       localStorage.removeItem('istighosah-gesture-enabled');
       gestureEnabled = gestureConfig.default !== false;
       input.checked = gestureEnabled;
-    });
+    }, true);
   }
 
 

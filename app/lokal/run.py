@@ -30,7 +30,9 @@ class Handler(SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         super().log_message(format, *args)
 
-server = ThreadingHTTPServer(("0.0.0.0", 8000), Handler)
-print("Server berjalan di http://localhost:8000", flush=True)
-Timer(1, lambda: webbrowser.open("http://localhost:8000")).start()
+port = 8000
+server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
+url = f"http://localhost:{port}"
+print(f"Server berjalan di {url}", flush=True)
+Timer(1, lambda: webbrowser.open(url)).start()
 server.serve_forever()

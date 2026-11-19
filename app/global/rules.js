@@ -482,17 +482,7 @@
     }
 
     const resetButton = createAction(panel, 'Reset Setting', 'resetSetting', resetDefaults);
-    const reloadButton = createAction(panel, 'Reload Data', 'reloadData', () => {
-      const reload = window.IstighosahReloadData;
-      if (!reload || typeof reload.start !== 'function') {
-        showNotice('Modul Reload Data belum tersedia. Muat ulang aplikasi lalu coba kembali.');
-        return;
-      }
-      reload.start({
-        onReset: () => resetDefaults({ confirm: false }),
-        onNotice: message => showNotice(message)
-      });
-    });
+    const reloadButton = createAction(panel, 'Reload Data', 'reloadData', reloadData);
 
     panel.querySelectorAll('[data-setting-id]').forEach(element => applyInfo(element, element.dataset.settingId));
     applyInfo(advancedButton.parentElement, 'advancedAccess');
@@ -652,8 +642,8 @@
       writeSettings({ jarakBlok, ukuranHuruf, jarakBaris, harakat, jenisHuruf, tebal, tema, selangSeling });
     }
 
-    function resetDefaults({ confirm = true } = {}) {
-      if (confirm && !window.confirm('Reset Setting akan mengembalikan seluruh pengaturan ke nilai bawaan. Lanjutkan?')) return false;
+    function resetDefaults() {
+      if (!window.confirm('Reset Setting akan mengembalikan seluruh pengaturan ke nilai bawaan. Lanjutkan?')) return;
       jarakBlok = config.jarakBlok.default;
       ukuranHuruf = config.ukuranHuruf.default;
       jarakBaris = config.jarakBaris.default;
@@ -683,10 +673,27 @@
       save();
       try { sessionStorage.removeItem('istighosah-advanced-open-v1'); } catch {}
       updateAdvancedVisibility(false);
-      window.dispatchEvent(new CustomEvent('istighosah:settings-reset'));
-      return true;
     }
 
+    async function reloadData() {
+      if (!window.confirm('Reload Data akan menghapus cache lama dan mengambil seluruh data langsung dari server. Jika sedang offline, aplikasi tidak dapat digunakan sampai data berhasil dimuat kembali. Lanjutkan?')) return;
+      const registration = await navigator.serviceWorker?.getRegistration('../');
+      const worker = navigator.serviceWorker?.controller || registration?.active;
+      if (!worker) {
+        showNotice('Service Worker belum aktif. Reload Data tidak dapat dijalankan.');
+        return;
+      }
+      const channel = new MessageChannel();
+      const timeout = setTimeout(() => showNotice('Proses Reload Data belum memberikan respons. Periksa koneksi internet.'), 30000);
+      channel.port1.onmessage = event => {
+        clearTimeout(timeout);
+        if (event.data?.ok) location.reload();
+        else showNotice('Reload Data gagal. Cache lama telah dihapus. Sambungkan perangkat ke internet lalu muat ulang aplikasi.');
+      };
+      worker.postMessage({ type: 'RELOAD_DATA' }, [channel.port2]);
+    }
+
+    
     gapControl.input.addEventListener('input', () => {
       jarakBlok = Number(gapControl.input.value);
       gapControl.output.textContent = `${jarakBlok} px`;
