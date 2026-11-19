@@ -88,10 +88,9 @@
     }
   }
 
-  function isGitHubPages() {
-    return location.hostname === 'mrkey7.github.io'
-      && location.pathname.startsWith('/istighosyah/');
-  }
+ function isGitHubPages() {
+  return location.hostname === 'mrkey7.github.io';
+}
 
   async function readGitHubJson(url, token) {
     const response = await fetch(url, {
