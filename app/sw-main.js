@@ -1,5 +1,5 @@
 // Update marker: reload skipExtensions diagnostics
-const CACHE_NAME = 'istighosah-static-v22';
+const CACHE_NAME = 'istighosah-static-v23';
 const CACHE_PREFIX = 'istighosah-static-';
 const META_CACHE = 'istighosah-cache-meta-v1';
 const ACTIVE_CACHE_KEY = new URL('__istighosah_cache__/active', self.registration?.scope || self.location.href).href;
