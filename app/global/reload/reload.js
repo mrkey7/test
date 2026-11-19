@@ -6,13 +6,10 @@
 
     const info = config.settingInfo || {};
     const tooltip = `${info.nama ? info.nama + ' — ' : ''}${info.keterangan || ''}`.trim();
-    const neededButton = createAction(panel, 'Hanya file yang dibutuhkan', 'reloadNeeded', () => reloadData('needed'));
-    const allButton = createAction(panel, 'Semua file', 'reloadAll', () => reloadData('all'));
-    for (const button of [neededButton, allButton]) {
-      if (tooltip) {
-        button.dataset.tooltip = tooltip;
-        button.setAttribute('aria-label', tooltip);
-      }
+    const reloadButton = createAction(panel, 'Reload Data', 'reloadData', reloadData);
+    if (tooltip) {
+      reloadButton.dataset.tooltip = tooltip;
+      reloadButton.setAttribute('aria-label', tooltip);
     }
 
     function showReloadProgress(detailed = false, mode = 'needed') {
@@ -112,15 +109,21 @@
       };
     }
 
-    async function reloadData(mode = 'needed') {
+    async function reloadData() {
       // Periksa koneksi sebelum konfirmasi dan sebelum menghubungi Service Worker.
       if (!navigator.onLine) {
         showNotice('Reload Data tidak dapat dilanjutkan karena perangkat sedang offline.', 'offline');
         return;
       }
 
-      const confirmText = mode === 'all' ? 'Semua file akan diunduh ulang dari server. Cache lama tetap aman jika proses gagal. Lanjutkan?' : 'Hanya file baru atau berubah yang akan diunduh. File lain tetap menggunakan cache lokal. Lanjutkan?';
-      if (!await showDialog(confirmText, true)) return;
+      const mode = await showDialog(
+        'Pilih data yang akan dimuat ulang:',
+        [
+          { label: 'Semua data', value: 'all' },
+          { label: 'Hanya yang dibutuhkan', value: 'needed' }
+        ]
+      );
+      if (!mode) return;
 
       const registration = await navigator.serviceWorker?.getRegistration('../');
       const worker = navigator.serviceWorker?.controller || registration?.active;
