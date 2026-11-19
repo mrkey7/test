@@ -450,10 +450,17 @@
             background: var(--control-accent, #2457c5); color: #fff;
           }
           #istighosah-dialog.dialog-offline .dialog-card {
-            border-left: 5px solid #dc2626;
+            border: 1px solid #ef4444;
+            border-left: 6px solid #dc2626;
+            background: #fef2f2;
+            color: #991b1b;
+          }
+          #istighosah-dialog.dialog-offline .dialog-message {
+            color: #991b1b;
+            font-weight: 700;
           }
           #istighosah-dialog.dialog-offline button.dialog-primary {
-            border-color: #dc2626; background: #dc2626;
+            border-color: #dc2626; background: #dc2626; color: #fff;
           }
           @keyframes istighosah-dialog-in {
             from { opacity: 0; transform: translateY(7px) scale(.98); }
