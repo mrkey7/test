@@ -5,7 +5,6 @@
     "skalaSempit": 0.7
   },
   "GoogleSearch": false,
-  "reloadDataDetailed": true,
   "gesture": {
     "default": true
   },
@@ -24,14 +23,14 @@
   "tatweel": {
     "aktif": true
   },
-	"harakat": {
-   "default": true
+  "harakat": {
+    "default": true
   },
-	"tebal": {
-   "default": false
+  "tebal": {
+    "default": false
   },
-	"selangSeling": {
-  "default": false
+  "selangSeling": {
+    "default": false
   },
   "jarakBaris": {
     "minimum": -0.5,
@@ -131,10 +130,6 @@
     "resetSetting": {
       "nama": "",
       "keterangan": "Mengembalikan seluruh pengaturan ke nilai bawaan."
-    },
-    "reloadData": {
-      "nama": "",
-      "keterangan": "Mengambil ulang seluruh data dari server"
     },
     "advancedAccess": {
       "nama": "",
