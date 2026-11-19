@@ -568,8 +568,7 @@
     advancedSubmenu.append(lineGapControl.input.parentElement, gapControl.input.parentElement);
 
     const resetButton = createAction(panel, 'Reset Setting', 'resetSetting', resetDefaults);
-    const reloadButton = createAction(panel, 'Reload Data', 'reloadData', reloadData);
-    advancedSubmenu.append(resetButton.parentElement, reloadButton.parentElement);
+    advancedSubmenu.append(resetButton.parentElement);
 
     panel.querySelectorAll('[data-setting-id]').forEach(element => applyInfo(element, element.dataset.settingId));
 
