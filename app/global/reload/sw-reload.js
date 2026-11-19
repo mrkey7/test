@@ -64,7 +64,9 @@ self.addEventListener('message', event => {
 
       for (const path of urls) {
         const url = new URL(path, self.registration.scope).href;
-        const shouldSkip = !forceFull && hasPreviousCache && isSkippedPath(path);
+        const matchesSkipRule = !forceFull && isSkippedPath(path);
+        const shouldSkip = matchesSkipRule && hasPreviousCache;
+        let diagnostic = '';
 
         // Skip hanya menggunakan cache lama jika file yang dimaksud benar-benar ada.
         // Cache lama yang hilang atau file yang tidak ada tetap akan diunduh.
@@ -77,6 +79,11 @@ self.addEventListener('message', event => {
             port?.postMessage({ progress: true, current, total, downloaded, ignored, path, status: 'Dipertahankan', message: 'Menggunakan file dari cache lama.' });
             continue;
           }
+          diagnostic = 'Aturan cocok, tetapi file tidak ditemukan di cache lama';
+        } else if (!forceFull && /\\.lnk$/i.test(path)) {
+          diagnostic = !matchesSkipRule
+            ? 'Aturan ekstensi tidak cocok'
+            : 'Cache sebelumnya tidak tersedia';
         }
 
         port?.postMessage({ progress: true, current, total, downloaded, ignored, path, message: 'Mengambil data dari server…' });
@@ -88,7 +95,7 @@ self.addEventListener('message', event => {
         await staging.put(url, response);
         current++;
         downloaded++;
-        port?.postMessage({ progress: true, current, total, downloaded, ignored, path, status: 'Diunduh', message: 'File berhasil dimuat.' });
+        port?.postMessage({ progress: true, current, total, downloaded, ignored, path, status: diagnostic || 'Diunduh', message: diagnostic || 'File berhasil dimuat.' });
         port?.postMessage({ detail: true, text: `Selesai: ${path}` });
       }
 
