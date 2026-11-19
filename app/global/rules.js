@@ -792,7 +792,7 @@
       showHomeTransition();
     }
 
-    function showReloadProgress() {
+    function showReloadProgress(detailed = false) {
       document.getElementById('istighosah-dialog')?.remove();
 
       const overlay = document.createElement('div');
@@ -802,8 +802,9 @@
           <p class="dialog-message reload-progress-title">Reload Data sedang berlangsung</p>
           <div class="reload-progress-track"><div class="reload-progress-fill"></div></div>
           <div class="reload-progress-meta"><strong class="reload-progress-status">0%</strong></div>
-          <div class="reload-progress-counts">Total: 0 file · Diunduh: 0 · Diabaikan: 0</div>
-          <div class="reload-progress-detail" aria-live="polite">Menyiapkan proses…</div>
+          <div class="reload-progress-counts"${detailed ? "" : " hidden"}>Total: 0 file · Diunduh: 0 · Diabaikan: 0</div>
+          <div class="reload-progress-detail"${detailed ? " hidden" : ""} aria-live="polite">Menyiapkan proses…</div>
+          <div class="reload-progress-files"${detailed ? "" : " hidden"} aria-live="polite"></div>
           <button type="button" class="dialog-primary reload-return" disabled>Kembali ke halaman utama</button>
         </section>`;
 
@@ -811,13 +812,17 @@
         const style = document.createElement('style');
         style.id = 'istighosah-reload-progress-style';
         style.textContent = `
-          #istighosah-dialog .reload-progress-card { width:min(100%,390px); }
+          #istighosah-dialog .reload-progress-card { width:min(100%,${detailed ? 680 : 390}px); }
           #istighosah-dialog .reload-progress-title { margin:0; font-weight:700; text-align:center; }
           #istighosah-dialog .reload-progress-track { height:9px; margin-top:22px; border-radius:99px; overflow:hidden; background:var(--menu-border,#ddd); }
           #istighosah-dialog .reload-progress-fill { width:0; height:100%; border-radius:inherit; background:var(--control-accent,#2457c5); transition:width .2s ease; }
           #istighosah-dialog .reload-progress-meta { display:flex; justify-content:center; margin-top:10px; color:var(--menu-fg,#222); font:700 13px Arial,sans-serif; }
           #istighosah-dialog .reload-progress-counts { margin-top:9px; color:var(--menu-fg,#222); font:12px Arial,sans-serif; text-align:center; font-variant-numeric:tabular-nums; }
           #istighosah-dialog .reload-progress-detail { margin-top:9px; max-height:92px; overflow:auto; color:var(--menu-muted,#666); font:12px/1.5 Arial,sans-serif; overflow-wrap:anywhere; text-align:left; }
+          #istighosah-dialog .reload-progress-files { display:grid; gap:5px; margin-top:10px; max-height:240px; overflow:auto; padding:8px; border:1px solid var(--menu-border,#ddd); border-radius:5px; text-align:left; }
+          #istighosah-dialog .reload-progress-file { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; font:12px/1.4 Arial,sans-serif; }
+          #istighosah-dialog .reload-progress-file-name { min-width:0; overflow-wrap:anywhere; color:var(--menu-fg,#222); }
+          #istighosah-dialog .reload-progress-file-status { flex:0 0 auto; color:var(--menu-muted,#666); white-space:nowrap; }
           #istighosah-dialog .reload-return { display:block; width:100%; margin-top:22px; }
           #istighosah-dialog .reload-return:disabled { opacity:.45; cursor:default; }
         `;
@@ -826,6 +831,7 @@
 
       document.body.appendChild(overlay);
       const button = overlay.querySelector('.reload-return');
+      const fileList = overlay.querySelector('.reload-progress-files');
       button.addEventListener('click', () => {
         overlay.remove();
         showHomeTransition();
@@ -843,7 +849,21 @@
             `Total: ${total} file · Diunduh: ${Number(data.downloaded) || 0} · Diabaikan: ${Number(data.ignored) || 0}`;
         },
         detail(text) {
-          overlay.querySelector('.reload-progress-detail').textContent = text;
+          if (!detailed) overlay.querySelector('.reload-progress-detail').textContent = text;
+        },
+        file(path, status) {
+          if (!detailed) return;
+          const row = document.createElement('div');
+          row.className = 'reload-progress-file';
+          const name = document.createElement('span');
+          name.className = 'reload-progress-file-name';
+          name.textContent = path;
+          const state = document.createElement('span');
+          state.className = 'reload-progress-file-status';
+          state.textContent = status;
+          row.append(name, state);
+          fileList.appendChild(row);
+          fileList.scrollTop = fileList.scrollHeight;
         },
         finish(ok) {
           overlay.querySelector('.reload-progress-title').textContent = ok ? 'Reload Data berhasil' : 'Reload Data gagal. Data lama tetap digunakan';
@@ -870,7 +890,7 @@
         return;
       }
 
-      const progress = showReloadProgress();
+      const progress = showReloadProgress(config.reloadDataDetailed === true);
       const channel = new MessageChannel();
       const timeout = setTimeout(() => {
         progress.finish(false);
@@ -885,6 +905,10 @@
         }
         if (data.detail) {
           progress.detail(data.text || '');
+          return;
+        }
+        if (data.file) {
+          progress.file(data.path || '', data.status || '');
           return;
         }
         clearTimeout(timeout);
