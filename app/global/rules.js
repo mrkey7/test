@@ -466,7 +466,6 @@
         <section class="dialog-card" role="dialog" aria-modal="true">
           <p class="dialog-message"></p>
           <div class="dialog-actions">
-            ${confirmMode ? '<button type="button" data-result="false">Batal</button>' : ''}
             <button type="button" class="dialog-primary" data-result="true">${confirmMode ? 'Lanjutkan' : 'OK'}</button>
           </div>
         </section>`;
@@ -480,7 +479,7 @@
         button.addEventListener('click', () => finish(button.dataset.result === 'true'));
       });
       overlay.addEventListener('click', event => {
-        if (event.target === overlay && !confirmMode) finish(true);
+        if (event.target === overlay) finish(!confirmMode);
       });
       document.body.appendChild(overlay);
       overlay.querySelector('.dialog-primary').focus();
