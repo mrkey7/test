@@ -23,7 +23,7 @@ self.addEventListener('message', event => {
       // Jika cache lama tidak ada, semua file akan diunduh tanpa menerapkan skip.
       let skipRules = [];
       if (previous && !forceFull) {
-        const configUrl = new URL('./global/reload/reload.json', self.registration.scope).href;
+        const configUrl = new URL('./app/global/reload/reload.json', self.registration.scope).href;
         const configResponse = await previous.match(configUrl);
         if (configResponse) {
           try {
