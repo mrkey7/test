@@ -139,7 +139,6 @@
       document.querySelector('.menu-trigger')?.setAttribute('aria-expanded', 'false');
     };
 
-    // Klik di dalam iframe tetap menutup menu PC, sama seperti klik di halaman PC.
     frame.addEventListener('load', () => {
       try {
         frame.contentDocument.addEventListener('pointerdown', closeMenu, true);
@@ -148,26 +147,37 @@
       }
     });
 
-    const item = document.createElement('div');
-    item.className = 'settings-action android-view-menu-item';
+    const item = document.createElement('label');
+    item.className = 'settings-toggle android-view-menu-item';
     item.dataset.settingId = 'androidView';
     item.hidden = true;
 
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'settings-action__button';
-    button.textContent = 'Android View';
-    button.addEventListener('click', () => {
-      const showAndroid = frame.hidden;
-      if (showAndroid && !frame.src) frame.src = '../android/an.html';
-      frame.hidden = !showAndroid;
-      button.textContent = showAndroid ? 'PC View' : 'Android View';
-      button.setAttribute('aria-label', showAndroid ? 'Kembali ke tampilan PC' : 'Tampilkan Android View');
-      closeMenu();
-    });
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = false;
 
-    item.appendChild(button);
+    const text = document.createElement('span');
+    text.textContent = 'Android View';
+    item.append(input, text);
     panel.appendChild(item);
+
+    function setAndroidView(enabled) {
+      input.checked = enabled;
+      if (enabled) {
+        if (!frame.src) frame.src = '../android/an.html';
+        document.body.classList.add('android-view-active');
+        frame.hidden = false;
+        closeMenu();
+      } else {
+        frame.hidden = true;
+        document.body.classList.remove('android-view-active');
+      }
+    }
+
+    input.addEventListener('change', () => setAndroidView(input.checked));
+
+    // Dipanggil oleh checkbox Android di dalam iframe untuk kembali ke PC.
+    window.exitAndroidView = () => setAndroidView(false);
   }
 
   async function init() {
