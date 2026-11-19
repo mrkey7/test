@@ -802,6 +802,7 @@
           <p class="dialog-message reload-progress-title">Reload Data sedang berlangsung</p>
           <div class="reload-progress-track"><div class="reload-progress-fill"></div></div>
           <div class="reload-progress-meta"><strong class="reload-progress-status">0%</strong></div>
+          <div class="reload-progress-counts">Total: 0 file · Diunduh: 0 · Diabaikan: 0</div>
           <div class="reload-progress-detail" aria-live="polite">Menyiapkan proses…</div>
           <button type="button" class="dialog-primary reload-return" disabled>Kembali ke halaman utama</button>
         </section>`;
@@ -815,6 +816,7 @@
           #istighosah-dialog .reload-progress-track { height:9px; margin-top:22px; border-radius:99px; overflow:hidden; background:var(--menu-border,#ddd); }
           #istighosah-dialog .reload-progress-fill { width:0; height:100%; border-radius:inherit; background:var(--control-accent,#2457c5); transition:width .2s ease; }
           #istighosah-dialog .reload-progress-meta { display:flex; justify-content:center; margin-top:10px; color:var(--menu-fg,#222); font:700 13px Arial,sans-serif; }
+          #istighosah-dialog .reload-progress-counts { margin-top:9px; color:var(--menu-fg,#222); font:12px Arial,sans-serif; text-align:center; font-variant-numeric:tabular-nums; }
           #istighosah-dialog .reload-progress-detail { margin-top:9px; max-height:92px; overflow:auto; color:var(--menu-muted,#666); font:12px/1.5 Arial,sans-serif; overflow-wrap:anywhere; text-align:left; }
           #istighosah-dialog .reload-return { display:block; width:100%; margin-top:22px; }
           #istighosah-dialog .reload-return:disabled { opacity:.45; cursor:default; }
@@ -837,6 +839,8 @@
           overlay.querySelector('.reload-progress-title').textContent = 'Reload Data sedang berlangsung';
           overlay.querySelector('.reload-progress-status').textContent = `${percent}%`;
           overlay.querySelector('.reload-progress-fill').style.width = `${percent}%`;
+          overlay.querySelector('.reload-progress-counts').textContent =
+            `Total: ${total} file · Diunduh: ${Number(data.downloaded) || 0} · Diabaikan: ${Number(data.ignored) || 0}`;
         },
         detail(text) {
           overlay.querySelector('.reload-progress-detail').textContent = text;
@@ -884,6 +888,14 @@
           return;
         }
         clearTimeout(timeout);
+        if (data.total !== undefined) {
+          progress.update({
+            current: data.total,
+            total: data.total,
+            downloaded: data.downloaded,
+            ignored: data.ignored
+          });
+        }
         progress.finish(Boolean(data.ok));
         channel.port1.close();
       };
