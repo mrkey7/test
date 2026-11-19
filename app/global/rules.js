@@ -588,7 +588,7 @@
 
     panel.querySelectorAll('[data-setting-id]').forEach(element => {
       const id = element.dataset.settingId;
-      if (panel.classList.contains('settings-panel--pc') && ['jenisHuruf', 'tema'].includes(id)) return;
+      if (['jenisHuruf', 'tema'].includes(id)) return;
       applyInfo(element, id);
     });
 
