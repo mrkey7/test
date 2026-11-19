@@ -133,7 +133,7 @@ self.addEventListener('message', event => {
           port?.postMessage({ file: true, path, status: 'Diabaikan' });
           current++;
           ignored++;
-          port?.postMessage({ progress: true, current, total, downloaded, ignored, path, message: 'Cache lama dipertahankan.' });
+          port?.postMessage({ progress: true, current, total, downloaded, ignored, path, status: 'Diabaikan', message: 'Cache lama dipertahankan.' });
           continue;
         }
 
@@ -147,7 +147,7 @@ self.addEventListener('message', event => {
         port?.postMessage({ file: true, path, status: 'Diunduh' });
         current++;
         downloaded++;
-        port?.postMessage({ progress: true, current, total, downloaded, ignored, path, message: 'File berhasil dimuat.' });
+        port?.postMessage({ progress: true, current, total, downloaded, ignored, path, status: 'Diunduh', message: 'File berhasil dimuat.' });
         port?.postMessage({ detail: true, text: `Selesai: ${path}` });
       }
 
