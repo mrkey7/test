@@ -1,0 +1,12 @@
+{
+  "name": "istighosah-kerangka",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local development tools for the Istighosah layout skeleton",
+  "scripts": {
+    "dev": "browser-sync start --config bs-config.js"
+  },
+  "devDependencies": {
+    "browser-sync": "3.0.4"
+  }
+}

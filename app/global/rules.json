@@ -1,0 +1,148 @@
+{
+  "menuResponsifPC": {
+    "ambangLebar": 550,
+    "skalaNormal": 1,
+    "skalaSempit": 0.7
+  },
+  "GoogleSearch": false,
+  "gesture": {
+    "default": true
+  },
+  "jarakBlok": {
+    "minimum": 0,
+    "maksimum": 50,
+    "langkah": 1,
+    "default": 0
+  },
+  "ukuranHuruf": {
+    "minimum": 100,
+    "maksimum": 500,
+    "langkah": 5,
+    "default": 120
+  },
+  "tatweel": {
+    "aktif": true
+  },
+	"harakat": {
+   "default": true
+  },
+	"tebal": {
+   "default": false
+  },
+	"selangSeling": {
+  "default": false
+  },
+  "jarakBaris": {
+    "minimum": -0.5,
+    "maksimum": 0.5,
+    "langkah": 0.05,
+    "default": 0
+  },
+  "jenisHuruf": {
+    "default": "noto-naskh",
+    "daftar": [
+      {
+        "id": "noto-naskh",
+        "nama": "Noto Naskh Arabic",
+        "keluarga": "'Noto Naskh Arabic', serif",
+        "jarakBaris": 0
+      },
+      {
+        "id": "amiri",
+        "nama": "Amiri",
+        "keluarga": "'Amiri', serif",
+        "jarakBaris": 0
+      },
+      {
+        "id": "noto-sans",
+        "nama": "Noto Sans Arabic",
+        "keluarga": "'Noto Sans Arabic', sans-serif",
+        "jarakBaris": 0
+      },
+      {
+        "id": "traditional-arabic",
+        "nama": "Traditional Arabic",
+        "keluarga": "'Traditional Arabic', 'Noto Naskh Arabic', serif",
+        "jarakBaris": 0
+      }
+    ]
+  },
+  "tema": {
+    "default": "klasik",
+    "daftar": [
+      {
+        "id": "klasik",
+        "nama": "Klasik"
+      },
+      {
+        "id": "terang",
+        "nama": "Terang"
+      },
+      {
+        "id": "gelap",
+        "nama": "Gelap"
+      }
+    ]
+  },
+  "advancedSetting": [
+    "jarakBaris",
+    "jarakBlok",
+    "resetSetting",
+    "reloadData"
+  ],
+  "settingInfo": {
+    "harakat": {
+      "nama": "",
+      "keterangan": "Menampilkan atau menyembunyikan tanda baca Arab."
+    },
+    "selangSeling": {
+      "nama": "",
+      "keterangan": "Mengaktifkan variasi warna antarblok bacaan."
+    },
+    "tatweel": {
+      "nama": "",
+      "keterangan": "Mengatur pemanjangan huruf Arab secara otomatis."
+    },
+    "tebal": {
+      "nama": "",
+      "keterangan": "Mengaktifkan atau menonaktifkan ketebalan huruf."
+    },
+    "jenisHuruf": {
+      "nama": "",
+      "keterangan": "Memilih jenis huruf untuk teks Arab."
+    },
+    "tema": {
+      "nama": "",
+      "keterangan": "Memilih skema warna tampilan."
+    },
+    "ukuranHuruf": {
+      "nama": "Ukuran",
+      "keterangan": "Mengatur ukuran teks bacaan."
+    },
+    "jarakBaris": {
+      "nama": "Jarak Baris",
+      "keterangan": "Menyesuaikan jarak vertikal antarbaris."
+    },
+    "jarakBlok": {
+      "nama": "Jarak Bagian",
+      "keterangan": "Menyesuaikan jarak antarbagian bacaan."
+    },
+    "resetSetting": {
+      "nama": "",
+      "keterangan": "Mengembalikan seluruh pengaturan ke nilai bawaan."
+    },
+    "reloadData": {
+      "nama": "",
+      "keterangan": "Mengambil ulang seluruh data dari server"
+    },
+    "advancedAccess": {
+      "nama": "",
+      "keterangan": "Menampilkan pengaturan lanjutan."
+    }
+  },
+  "padding": {
+    "top": 15,
+    "right": 10,
+    "left": 10
+  }
+}

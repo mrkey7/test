@@ -1,0 +1,1355 @@
+* { box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #ffffff;
+  color: #171717;
+}
+
+.frame {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0 9px 28px;
+  border: 0;
+}
+
+.document {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.document-heading {
+  display: grid;
+  align-items: end;
+  grid-template-columns: clamp(42px, 15vw, 58px) minmax(0, 1fr) clamp(42px, 15vw, 58px);
+  gap: 2px;
+  text-align: center;
+  background: #f8f7f2;
+}
+
+.document-heading__text {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.heading-portrait {
+  align-self: end;
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+  width: auto;
+  height: clamp(54px, 18vw, 76px);
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.heading-logo {
+  align-self: end;
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: center;
+  width: clamp(40px, 13vw, 54px);
+  max-width: 100%;
+  max-height: 84px;
+  height: auto;
+  object-fit: contain;
+}
+
+#document-title,
+.document-subtitle,
+.reading-text {
+  font-family: "Noto Naskh Arabic", "Noto Naskh Arabic UI", "Amiri", "Traditional Arabic", serif;
+  font-weight: 600;
+}
+
+#document-title {
+  margin: 0;
+  font-size: clamp(1.85rem, 7.6vw, 2.45rem);
+  line-height: 1.2;
+}
+
+.document-subtitle {
+  margin: 0;
+  font-size: clamp(0.92rem, 3.8vw, 1.18rem);
+  line-height: 1.35;
+}
+
+.document-occasion {
+  width: 100%;
+  margin: 0;
+  padding: 2px 2px 5px;
+  background: #f8f7f2;
+  direction: ltr;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font: clamp(10px, 3vw, 12px)/1.25 Arial, sans-serif;
+}
+
+.document-opening {
+  display: block;
+  grid-column: 1 / -1;
+  grid-row: 4;
+  justify-self: center;
+  width: min(30vw, 112px);
+  max-width: 100%;
+  height: auto;
+  margin: 16px auto 7px;
+  padding: 3px 0;
+  background: #ffffff;
+  object-fit: contain;
+}
+
+.readings {
+  margin-top: 4px;
+  direction: rtl;
+  text-align: right;
+}
+
+.reading-text {
+  margin: 0 0 14px;
+  direction: rtl;
+  text-align: right;
+  font-size: clamp(1rem, 4.25vw, 1.3rem);
+  line-height: normal;
+  overflow-wrap: anywhere;
+}
+
+.reading-asma {
+  margin-bottom: 18px;
+}
+
+.menu {
+  position: relative;
+  z-index: 20;
+  flex: 0 0 auto;
+  margin-right: 12px;
+}
+
+.menu-trigger {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0 0 5px;
+  border: 1px solid #777777;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #222222;
+  font: 700 26px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+
+.menu-panel {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  width: min(230px, calc(100vw - 24px));
+  max-height: calc(100dvh - 60px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 5px 0;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px #00000026;
+}
+
+.menu-panel[hidden] { display: none; }
+
+.menu-option {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  color: #222222;
+  font: 16px Arial, sans-serif;
+  cursor: pointer;
+}
+
+.menu-option input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #2457c5;
+}
+
+/* Tema dokumen dan warna selang-seling. */
+
+:root {
+  color-scheme: light;
+  --page-bg: #f2e4b8; --page-fg: #382b18; --frame-border: #b38a38;
+  --heading-bg: #dfc47e; --heading-fg: #30220d;
+  --band-a: #f7edcf; --band-b: #eddda9;
+  --menu-bg: #fff8e8; --menu-fg: #302719; --menu-muted: #75664d;
+  --menu-border: #c9b88f; --control-accent: #98702a;
+}
+html[data-theme="klasik"] {
+  color-scheme: light;
+  --page-bg: #f2e4b8; --page-fg: #382b18; --frame-border: #b38a38;
+  --heading-bg: #dfc47e; --heading-fg: #30220d;
+  --band-a: #f7edcf; --band-b: #eddda9;
+  --menu-bg: #fff8e8; --menu-fg: #302719; --menu-muted: #75664d;
+  --menu-border: #c9b88f; --control-accent: #98702a;
+}
+html[data-theme="terang"] {
+  color-scheme: light;
+  --page-bg: #ffffff; --page-fg: #202938; --frame-border: #c8d4e3;
+  --heading-bg: #dce8f7; --heading-fg: #1b3558;
+  --band-a: #ffffff; --band-b: #eaf0f7;
+  --menu-bg: #ffffff; --menu-fg: #202938; --menu-muted: #64748b;
+  --menu-border: #cbd5e1; --control-accent: #315f9e;
+}
+html[data-theme="gelap"] {
+  color-scheme: dark;
+  --page-bg: #151a22; --page-fg: #e8edf4; --frame-border: #465366;
+  --heading-bg: #2a3545; --heading-fg: #f2eee5;
+  --band-a: #1d2530; --band-b: #293342;
+  --menu-bg: #202936; --menu-fg: #e8edf4; --menu-muted: #b3bfce;
+  --menu-border: #4b596c; --control-accent: #91b8ed;
+}
+body { background: var(--page-bg); color: var(--page-fg); }
+.frame { background: var(--page-bg); color: var(--page-fg); border-color: var(--frame-border); }
+.document-intro { display: flow-root; width: 100%; background: transparent; color: var(--page-fg); }
+.document-heading, .document-occasion { background: transparent; color: inherit; }
+.document-basmalah { display: flow-root; width: 100%; background: transparent; }
+.document-opening { background: transparent; }
+.reading-text { color: var(--page-fg); background: transparent; }
+.reading-number {
+  display: inline;
+  white-space: nowrap;
+  margin-inline-end: 0.25em;
+}
+.reading-repeat {
+  display: inline;
+  white-space: nowrap;
+  margin-inline-start: 0.50em;
+  font-size: .72em;
+}
+
+html[data-selang-seling="true"] .document-intro { background: var(--band-a); }
+html[data-selang-seling="true"] #naskah > .reading-text:nth-child(odd) { background: var(--band-b); }
+html[data-selang-seling="true"] #naskah > .reading-text:nth-child(even) { background: var(--band-a); }
+html[data-theme="gelap"] .document-opening { filter: invert(1); }
+html[data-theme="gelap"] .document-opening { margin-bottom: 0; }
+html[data-theme="gelap"] .readings { margin-top: 0; }
+.readings > .reading-text:first-child { padding-top: 0.2em; }
+html[data-theme="gelap"] .reading-text,
+html[data-theme="gelap"] .reading-asma { margin-bottom: 0; }
+.menu-trigger { border-color: var(--menu-border); background: var(--menu-bg); color: var(--menu-fg); }
+.menu-panel { border-color: var(--menu-border); background: var(--menu-bg); color: var(--menu-fg); }
+.menu-option { color: var(--menu-fg); }
+.menu-option input { accent-color: var(--control-accent); }
+
+
+/* Logo transparan: emas asli pada tema gelap, hitam lembut pada tema terang/klasik. */
+html:not([data-theme="gelap"]) .heading-logo {
+  filter: grayscale(1) brightness(.48);
+  opacity: .72;
+}
+
+
+
+
+/* Footer memiliki area tersendiri di dasar halaman. */
+.frame {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+}
+.document {
+  flex: 1 0 auto;
+}
+.page-footer {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  margin-top: auto;
+  padding: 7px 8px 6px;
+  border-top: 1px solid var(--frame-border);
+  background: var(--page-bg);
+  color: var(--page-fg);
+  font: 10px/1.2 Arial, sans-serif;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+
+/* Eksperimen Android: kloning tampilan kolom menu PC (tanpa mengubah dokumen). */
+.menu-panel {
+    width: max-content;
+    min-width: 0;
+    max-width: min(560px, calc(100vw - 24px));
+    overflow: visible;
+    padding: 5px 0;
+  }
+
+.settings-toggle, .settings-control, .settings-action, .settings-choice {
+    position: relative;
+  }
+
+.settings-toggle, .settings-action__button, .settings-choice__trigger {
+    white-space: nowrap;
+  }
+
+.settings-toggle, .settings-action { width: max-content; min-width: 100%; }
+
+.settings-control { width: 100%; min-width: 220px; padding: 8px 12px; }
+
+.settings-control__heading label { display: none; }
+
+.settings-control__heading { margin: 0 0 3px; min-height: 0; }
+
+.settings-control output { margin-left: auto; font-size: 12px; }
+
+.settings-control input[type="range"] { width: 100%; min-width: 210px; }
+
+.settings-toggle[data-tooltip], .settings-control[data-tooltip], .settings-action[data-tooltip], .settings-choice[data-tooltip] {
+    position: relative;
+  }
+
+.settings-toggle[data-tooltip]::after, .settings-control[data-tooltip]::after,
+  .settings-action[data-tooltip]::after, .settings-choice[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    z-index: 30;
+    left: calc(100% + 9px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: max-content;
+    max-width: 270px;
+    padding: 7px 9px;
+    border: 1px solid var(--menu-border);
+    border-radius: 4px;
+    background: var(--menu-bg);
+    color: var(--menu-fg);
+    box-shadow: 0 3px 10px #0003;
+    font: 12px/1.4 Arial, sans-serif;
+    white-space: normal;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+.settings-toggle[data-tooltip]:hover::after, .settings-control[data-tooltip]:hover::after,
+  .settings-action[data-tooltip]:hover::after, .settings-choice[data-tooltip]:hover::after {
+    opacity: 1; visibility: visible;
+  }
+
+.settings-choice--cascade { width: 100%; min-width: 0; padding: 0; }
+
+.settings-choice__label, .settings-choice--cascade > .settings-select { display: none; }
+
+.settings-choice__trigger {
+    display: block;
+    width: 100%;
+    min-height: 38px;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    color: var(--menu-fg);
+    text-align: left;
+    font: 14px Arial, sans-serif;
+    cursor: default;
+  }
+
+.settings-choice__trigger:hover, .settings-choice--cascade:focus-within > .settings-choice__trigger {
+    background: color-mix(in srgb, var(--control-accent) 18%, var(--menu-bg));
+  }
+
+.settings-choice__submenu {
+    display: none;
+    position: absolute;
+    z-index: 40;
+    top: -1px;
+    left: 100%;
+    min-width: 190px;
+    width: max-content;
+    max-width: 300px;
+    padding: 4px 0;
+    border: 1px solid var(--menu-border);
+    border-radius: 4px;
+    background: var(--menu-bg);
+    box-shadow: 0 3px 12px #0003;
+  }
+
+.settings-choice--cascade:hover > .settings-choice__submenu,
+  .settings-choice--cascade:focus-within > .settings-choice__submenu { display: block; }
+
+.settings-choice__item {
+    display: block;
+    width: 100%;
+    min-height: 32px;
+    padding: 5px 12px;
+    border: 0;
+    background: transparent;
+    color: var(--menu-fg);
+    text-align: left;
+    font: 13px Arial, sans-serif;
+    white-space: nowrap;
+    cursor: default;
+  }
+
+.settings-choice__item:hover, .settings-choice__item[aria-checked="true"] {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+  }
+
+.menu-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    width: max-content;
+    min-width: 0;
+    padding: 7px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: 0 4px 14px #0003;
+  }
+
+.settings-toggle,
+  .settings-control,
+  .settings-action,
+  .settings-choice--cascade {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--menu-fg);
+  }
+
+.settings-toggle {
+    display: flex;
+    min-height: 38px;
+    align-items: center;
+    padding: 0 12px;
+    font: 14px Arial, sans-serif;
+    cursor: default;
+    transition: background-color .12s ease, color .12s ease;
+  }
+
+.settings-toggle input { display: none; }
+
+.settings-toggle:hover,
+  .settings-toggle:focus-within {
+    background: color-mix(in srgb, var(--control-accent) 17%, var(--menu-bg));
+  }
+
+.settings-toggle:has(input:checked) {
+    background: color-mix(in srgb, var(--control-accent) 30%, var(--menu-bg));
+    color: var(--menu-fg);
+  }
+
+.settings-choice--cascade {
+    min-height: 38px;
+  }
+
+.settings-choice__trigger {
+    min-height: 38px;
+    padding: 0 12px;
+    border-radius: 4px;
+    text-align: left;
+  }
+
+.settings-choice--cascade:hover > .settings-choice__trigger,
+  .settings-choice--cascade:focus-within > .settings-choice__trigger {
+    background: color-mix(in srgb, var(--control-accent) 17%, var(--menu-bg));
+  }
+
+.settings-control {
+    position: relative;
+    display: flex;
+    min-height: 38px;
+    align-items: center;
+    padding: 0 12px;
+    cursor: default;
+  }
+
+.settings-control__heading {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+.settings-control__heading label { display: none; }
+
+.settings-control output {
+    position: absolute;
+    right: 10px;
+    top: -27px;
+    z-index: 50;
+    display: none;
+    min-width: 0;
+    padding: 4px 7px;
+    border: 1px solid var(--menu-border);
+    border-radius: 4px;
+    background: var(--menu-bg);
+    color: var(--menu-fg);
+    font: 12px Arial, sans-serif;
+    box-shadow: 0 2px 7px #0002;
+  }
+
+.settings-control:hover,
+  .settings-control:focus-within {
+    background: color-mix(in srgb, var(--control-accent) 17%, var(--menu-bg));
+  }
+
+.settings-control:hover output,
+  .settings-control:focus-within output { display: block; }
+
+.settings-control input[type="range"] {
+    width: 100%;
+    min-width: 0;
+    height: 22px;
+    margin: 0;
+    cursor: ew-resize;
+  }
+
+.settings-action {
+    min-height: 38px;
+  }
+
+.settings-action__button {
+    display: block;
+    width: 100%;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--menu-fg);
+    text-align: left;
+    font: 14px Arial, sans-serif;
+  }
+
+.settings-action__button:hover,
+  .settings-action__button:focus-visible {
+    background: color-mix(in srgb, var(--control-accent) 17%, var(--menu-bg));
+    outline: none;
+  }
+
+.settings-advanced-toggle {
+    border: 0 !important;
+    border-radius: 4px;
+  }
+
+.settings-advanced-toggle:hover {
+    background: color-mix(in srgb, var(--control-accent) 17%, var(--menu-bg));
+  }
+
+.menu-panel {
+    width: 238px;
+    min-width: 238px;
+    gap: 0;
+    padding: 5px;
+    border: 1px solid color-mix(in srgb, var(--menu-border) 55%, transparent);
+    border-radius: 5px;
+    background: var(--menu-bg);
+    box-shadow: 0 4px 14px #0003;
+  }
+
+.settings-toggle,
+  .settings-control,
+  .settings-action,
+  .settings-choice--cascade {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--menu-border) 28%, transparent);
+    border-radius: 0;
+    background: transparent;
+    color: var(--menu-fg);
+  }
+
+.settings-toggle:last-child,
+  .settings-control:last-child,
+  .settings-action:last-child,
+  .settings-choice--cascade:last-child {
+    border-bottom-color: transparent;
+  }
+
+.settings-toggle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 10px 0 12px;
+    background: transparent;
+  }
+
+.settings-toggle input {
+    display: block;
+    order: 2;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin: 0 0 0 12px;
+    accent-color: var(--control-accent);
+  }
+
+.settings-toggle:hover,
+  .settings-toggle:focus-within {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+  }
+
+.settings-toggle:has(input:checked) {
+    background: var(--menu-bg);
+    color: var(--menu-fg);
+  }
+
+.settings-toggle:has(input:checked):hover {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+  }
+
+.settings-choice--cascade {
+    min-height: 38px;
+  }
+
+.settings-choice__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 38px;
+    padding: 0 10px 0 12px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--menu-fg);
+    text-align: left;
+  }
+
+.settings-choice__trigger::after {
+    content: "›";
+    margin-left: 12px;
+    font: 18px/1 Arial, sans-serif;
+    opacity: .72;
+  }
+
+.settings-choice--cascade:hover > .settings-choice__trigger,
+  .settings-choice--cascade:focus-within > .settings-choice__trigger {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+  }
+
+.settings-control {
+    display: flex;
+    position: relative;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 12px;
+    background: transparent;
+    cursor: ew-resize;
+  }
+
+.settings-control__heading {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+.settings-control__heading label { display: none; }
+
+.settings-control input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    cursor: ew-resize;
+  }
+
+.settings-control input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--menu-fg) 28%, var(--menu-bg));
+  }
+
+.settings-control input[type="range"]::-moz-range-track {
+    height: 4px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--menu-fg) 28%, var(--menu-bg));
+  }
+
+.settings-control input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--control-accent);
+  }
+
+.settings-control input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--control-accent);
+  }
+
+.settings-control:hover,
+  .settings-control:focus-within {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+  }
+
+.settings-control output {
+    top: -23px;
+    right: 8px;
+  }
+
+.settings-action {
+    min-height: 38px;
+    background: transparent;
+  }
+
+.settings-action__button {
+    width: 100%;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--menu-fg);
+    text-align: left;
+  }
+
+.settings-action__button:hover,
+  .settings-action__button:focus-visible {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+    outline: none;
+  }
+
+.menu-panel {
+    width: 238px;
+    min-width: 238px;
+    max-width: 238px;
+    gap: 0;
+    padding: 5px;
+    overflow: visible;
+  }
+
+.settings-toggle,
+  .settings-control,
+  .settings-action,
+  .settings-choice--cascade {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--menu-border) 25%, transparent);
+    border-radius: 0;
+    background: transparent;
+  }
+
+.settings-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px 0 12px;
+  }
+
+.settings-toggle input {
+    order: 2;
+    width: 15px;
+    height: 15px;
+    margin: 0;
+  }
+
+.settings-toggle:has(input:checked) {
+    background: transparent;
+  }
+
+.settings-toggle:hover,
+  .settings-toggle:focus-within {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+  }
+
+.settings-choice--cascade {
+    position: relative;
+    min-height: 38px;
+  }
+
+.settings-choice__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 38px;
+    padding: 0 10px 0 12px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--menu-fg);
+    text-align: left;
+  }
+
+.settings-choice__trigger::after {
+    content: "›";
+    display: inline-flex;
+    width: 15px;
+    height: 15px;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    font: 15px/15px Arial, sans-serif;
+    opacity: .8;
+  }
+
+.settings-choice--cascade:hover > .settings-choice__trigger,
+  .settings-choice--cascade:focus-within > .settings-choice__trigger {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+  }
+
+.settings-choice__item {
+    position: relative;
+    padding-right: 32px;
+    text-align: left;
+  }
+
+.settings-choice__item[aria-checked="true"]::after {
+    content: "✓";
+    position: absolute;
+    right: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font: 13px/1 Arial, sans-serif;
+  }
+
+.settings-choice[data-tooltip]::after {
+    left: auto;
+    right: calc(100% + 9px);
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 220px;
+    z-index: 100;
+  }
+
+.settings-control {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 12px;
+    cursor: ew-resize;
+  }
+
+.settings-control input[type="range"] {
+    width: 100%;
+    height: 42px;
+    margin: 0;
+    padding: 0;
+  }
+
+.settings-control input[type="range"]::-webkit-slider-runnable-track {
+    height: 7px;
+    border-radius: 7px;
+  }
+
+.settings-control input[type="range"]::-moz-range-track {
+    height: 7px;
+    border-radius: 7px;
+  }
+
+.settings-control input[type="range"]::-webkit-slider-thumb {
+    margin-top: -3.5px;
+  }
+
+.settings-control output {
+    display: block;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    z-index: 3;
+    padding: 2px 5px;
+    border: 0;
+    background: var(--menu-bg);
+    box-shadow: none;
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+.settings-control:hover,
+  .settings-control:focus-within {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+  }
+
+.settings-control:hover output,
+  .settings-control:focus-within output {
+    display: block;
+  }
+
+.settings-action {
+    min-height: 38px;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--menu-border) 25%, transparent);
+    background: transparent;
+  }
+
+.settings-action__button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 38px;
+    padding: 0 10px 0 12px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--menu-fg);
+    text-align: left;
+    font: 14px Arial, sans-serif;
+  }
+
+.settings-action__button::before {
+    display: inline-flex;
+    width: 15px;
+    height: 15px;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    order: 2;
+    font: 15px/1 Arial, sans-serif;
+    opacity: .85;
+  }
+
+.settings-action__button:hover,
+  .settings-action__button:focus-visible {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg));
+    outline: none;
+  }
+
+.settings-action:has(.settings-action__button):first-of-type .settings-action__button::before {
+    content: "↺";
+  }
+
+.settings-action:has(.settings-action__button) .settings-action__button {
+    gap: 8px;
+  }
+
+.settings-action__button[aria-label*="Reload"]::before,
+  .settings-action__button[title*="Reload"]::before {
+    content: "⟳";
+  }
+
+.menu-panel.settings-panel--pc {
+    width: 238px !important;
+    min-width: 238px !important;
+    max-width: 238px !important;
+    box-sizing: border-box !important;
+    align-items: stretch !important;
+  }
+
+.menu-panel.settings-panel--pc > .settings-toggle,
+  .menu-panel.settings-panel--pc > .settings-control,
+  .menu-panel.settings-panel--pc > .settings-action,
+  .menu-panel.settings-panel--pc > .settings-choice--cascade {
+    display: flex !important;
+    flex: 0 0 100% !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+.menu-panel.settings-panel--pc > .settings-action {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--menu-border) 25%, transparent) !important;
+    background: transparent !important;
+  }
+
+.menu-panel.settings-panel--pc .settings-action__button {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    padding: 0 10px 0 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--menu-fg) !important;
+    text-align: left !important;
+    font: 14px Arial, sans-serif !important;
+  }
+
+.menu-panel.settings-panel--pc .settings-action__button::after {
+    display: inline-flex;
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    font: 15px/1 Arial, sans-serif;
+    opacity: .9;
+  }
+
+.menu-panel.settings-panel--pc [data-setting-id="advancedAccess"] .settings-action__button::after {
+    content: "⌄";
+  }
+
+.menu-panel.settings-panel--pc [data-setting-id="resetSetting"] .settings-action__button::after {
+    content: "↺";
+  }
+
+.menu-panel.settings-panel--pc [data-setting-id="reloadData"] .settings-action__button::after {
+    content: "⟳";
+  }
+
+.menu-panel.settings-panel--pc .settings-action__button:hover,
+  .menu-panel.settings-panel--pc .settings-action__button:focus-visible {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg)) !important;
+    outline: none;
+  }
+
+.menu-panel.settings-panel--pc .settings-choice__trigger::after {
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    line-height: 16px !important;
+    opacity: 1 !important;
+  }
+
+.menu-panel.settings-panel--pc > .settings-choice--cascade {
+    width: 100% !important;
+    flex-basis: 100% !important;
+  }
+
+#menu-panel.settings-panel--pc {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 238px !important;
+    min-width: 238px !important;
+    max-width: 238px !important;
+    box-sizing: border-box !important;
+    padding: 5px !important;
+    gap: 0 !important;
+  }
+
+#menu-panel.settings-panel--pc > * {
+    display: flex;
+    flex: 0 0 auto !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-toggle,
+  #menu-panel.settings-panel--pc > .settings-choice--cascade {
+    min-height: 38px !important;
+    padding: 0 10px 0 12px !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-control {
+    min-height: 42px !important;
+    padding: 0 12px !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-action {
+    min-height: 38px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-action > .settings-action__button {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 38px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 10px 0 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-align: left !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-control input[type="range"] {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-control .settings-control__heading {
+    position: absolute !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    pointer-events: none !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-choice--cascade > .settings-choice__trigger {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+  }
+
+#menu-panel[hidden],
+  #menu-panel [hidden] {
+    display: none !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-action:hover,
+  #menu-panel.settings-panel--pc > .settings-action:focus-within,
+  #menu-panel.settings-panel--pc > .settings-action:hover > .settings-action__button,
+  #menu-panel.settings-panel--pc > .settings-action:focus-within > .settings-action__button {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg)) !important;
+    outline: none !important;
+  }
+
+#menu-panel.settings-panel--pc > .settings-action,
+  #menu-panel.settings-panel--pc > .settings-action > .settings-action__button {
+    transition: background-color .12s ease;
+  }
+
+#menu-panel.settings-panel--pc > .settings-action__button,
+  #menu-panel.settings-panel--pc > .settings-action > .settings-action__button {
+    cursor: default;
+  }
+
+#menu-panel.settings-panel--pc > .settings-action:hover,
+  #menu-panel.settings-panel--pc > .settings-action:focus-within,
+  #menu-panel.settings-panel--pc > .settings-action > .settings-action__button:hover,
+  #menu-panel.settings-panel--pc > .settings-action > .settings-action__button:focus-visible {
+    background: color-mix(in srgb, var(--control-accent) 22%, var(--menu-bg)) !important;
+    outline: none !important;
+  }
+
+/* Panel tetap dapat dibuka/ditutup sesuai atribut hidden. */
+#menu-panel[hidden], #menu-panel [hidden] { display: none !important; }
+
+/* Ikon menu tetap berada di baris Basmalah dan mengikuti alur dokumen. */
+.document-basmalah {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+}
+
+.document-basmalah .menu-trigger {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 8px;
+  font: 600 20px/1 Arial, sans-serif;
+}
+
+/* Panel menu selalu menempel di kiri bawah layar, terlepas dari posisi ikon. */
+#menu-panel.settings-panel--pc {
+  position: fixed !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 1000 !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+
+/* Cegah panel pengaturan memperlebar viewport pada Android. */
+html, body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+#menu-panel.settings-panel--pc {
+  width: min(238px, calc(100vw - 18px)) !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 18px) !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Android: submenu Font/Tema sebagai kolom kedua; menu utama tetap struktur PC. */
+#menu-panel.settings-panel--pc[hidden] {
+  display: none !important;
+}
+
+#menu-panel.settings-panel--pc.android-settings-page-open {
+  width: min(476px, calc(100vw - 18px)) !important;
+  max-width: calc(100vw - 18px) !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden !important;
+}
+
+#menu-panel.settings-panel--pc.android-settings-page-open > .settings-toggle,
+#menu-panel.settings-panel--pc.android-settings-page-open > .settings-control,
+#menu-panel.settings-panel--pc.android-settings-page-open > .settings-action,
+#menu-panel.settings-panel--pc.android-settings-page-open > .settings-choice--cascade {
+  grid-column: 1;
+}
+
+#menu-panel .android-settings-page {
+  display: flex;
+  flex-direction: column;
+  grid-column: 2;
+  grid-row: 1 / span 99;
+  min-width: 0;
+  width: 100%;
+  border-left: 1px solid var(--menu-border);
+  box-sizing: border-box;
+  overflow: hidden;
+  animation: android-settings-page-in .2s ease both;
+}
+
+#menu-panel .android-settings-page[hidden] {
+  display: none !important;
+}
+
+#menu-panel .android-settings-page-heading {
+  display: flex;
+  flex: 0 0 38px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--menu-border);
+  color: var(--menu-fg);
+  font: 600 14px Arial, sans-serif;
+}
+
+#menu-panel .android-settings-page-back {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: 26px/1 Arial, sans-serif;
+}
+
+#menu-panel .android-settings-page .settings-choice__submenu {
+  position: static !important;
+  display: flex !important;
+  flex-direction: column;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: auto;
+  animation: none !important;
+}
+
+#menu-panel .android-settings-page .settings-choice__item {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+@keyframes android-settings-page-in {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+
+/* Android Help page */
+#menu-panel .android-help-page {
+  grid-row: 1 / span 99;
+}
+
+#menu-panel .android-help-content {
+  min-width: 0;
+  padding: 10px 12px 14px;
+  overflow-y: auto;
+  color: var(--menu-fg);
+  font: 13px/1.5 Arial, sans-serif;
+}
+
+#menu-panel .android-help-content section + section {
+  margin-top: 12px;
+}
+
+#menu-panel .android-help-content h4 {
+  margin: 0 0 5px;
+  font-size: 13px;
+}
+
+#menu-panel .android-help-content ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+#menu-panel .android-help-content li + li {
+  margin-top: 4px;
+}
+
+/* Popup ringkas untuk konfirmasi gesture Android. */
+.android-gesture-popup {
+  position: fixed;
+  z-index: 2000;
+  left: 50%;
+  bottom: 22px;
+  transform: translate(-50%, 8px);
+  padding: 8px 14px;
+  border-radius: 18px;
+  background: rgba(25, 25, 25, .88);
+  color: #fff;
+  font: 600 14px/1.2 Arial, sans-serif;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.android-gesture-popup.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

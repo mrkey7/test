@@ -1,0 +1,6 @@
+Kode	Arti	Keterangan
+200	OK	File berhasil dikirim oleh server.
+304	Not Modified	File tidak berubah
+404	Not Found	File tidak ditemukan.
+403	Forbidden	Akses ke file ditolak.
+500	Internal Server Error	Terjadi kesalahan pada server.

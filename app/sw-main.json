@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "exclude": [
+    ".git/",
+    ".vscode/",
+    "node_modules/",
+    ".gitattributes",
+    "README.md",
+    "LICENSE",
+    "sw.js",
+    "*.lnk",
+    "app/sw-main.json",
+    "app/global/aset/",
+    "app/lokal/"
+  ],
+  "source": "local",
+  "generatedAt": "2026-11-19T11:31:39.659Z",
+  "repository": "mrkey7/istighosyah",
+  "branch": "main",
+  "files": [
+    {
+      "path": "app/android/an.css",
+      "revision": "1f03879a07971090263dcc47fa12444b37a342938c49f0ce2f060fc49d4c78d9",
+      "size": 34862
+    },
+    {
+      "path": "app/android/an.html",
+      "revision": "a1933280c8d4f5b848d3c0bd9ed2c1258ade307d45d51426c0028124811944ed",
+      "size": 2123
+    },
+    {
+      "path": "app/android/an.html.bak",
+      "revision": "f8e096f30b60607ad3be90d5f93b8d170b74e4e887316ee9e6532f720d99dce4",
+      "size": 2031
+    },
+    {
+      "path": "app/android/an.js",
+      "revision": "8e5ba7554d5010bf97fc75482d243a7abce7f17e572cec2d2397431983784ffd",
+      "size": 20962
+    },
+    {
+      "path": "app/global/reload/r.css",
+      "revision": "28d47d6c3e70222986ea7a7d1cf149b65f98a0f167e3bd517794a3a9084b3014",
+      "size": 1925
+    },
+    {
+      "path": "app/global/reload/r.html",
+      "revision": "2d051a078ea3d17539aeb1fee8c293693cfdc976269f3b7e4856d53f077aec20",
+      "size": 1430
+    },
+    {
+      "path": "app/global/reload/r.js",
+      "revision": "2cb8e85a17ee7b1c28511f1b499c82a7ec983349ac3c34819bfd927f27fcb87b",
+      "size": 18424
+    },
+    {
+      "path": "app/global/reload/r.js.bak",
+      "revision": "fff95dd49423b49b1af653238de13d6325aa42f3385ba9276ec31449cc542306",
+      "size": 17772
+    },
+    {
+      "path": "app/global/rules.js",
+      "revision": "9d83f541290d4ed7a2d5023b297b883e3fb5f0966fd1b8d92f81b5faa1db364c",
+      "size": 27950
+    },
+    {
+      "path": "app/global/rules.json",
+      "revision": "8a475c2e008cde43e5ab5d83974a9119d82ff72a0c7f62f373fbc3b92dec6fe9",
+      "size": 3234
+    },
+    {
+      "path": "app/manifest.webmanifest",
+      "revision": "5b75847c8702dc8d2c844e5e237152552e1f02fbdf0b62300b1bc5f8b90a40c6",
+      "size": 449
+    },
+    {
+      "path": "app/pc/pc.css",
+      "revision": "bd961373194416d8aa111addf9104b4289f363817855340755bf7690ff87a188",
+      "size": 33345
+    },
+    {
+      "path": "app/pc/pc.html",
+      "revision": "0a294c927ae45c801be3f92475e5a85fa6d593a64c18c0bf5ef7120420ce1cdf",
+      "size": 2077
+    },
+    {
+      "path": "app/pc/pc.html.bak",
+      "revision": "028897270e469fb067f716d2d6fe827de467e873c24dbde4edd36b0e73c298e4",
+      "size": 1982
+    },
+    {
+      "path": "app/pc/pc.js",
+      "revision": "f1c1852ee1e43b940b4a8ba90c96e18c58111b36bce3a84474b8357d8487e8cb",
+      "size": 8152
+    },
+    {
+      "path": "app/sw-main.js",
+      "revision": "4e5b921cb04d02f74c03291b7a7c9a8acb329307d9d58f8a45bb13c610b8ac0d",
+      "size": 12869
+    },
+    {
+      "path": "index.html",
+      "revision": "88e74eddf7a6896e0d777bbdd8bdee5e2bd784cd9e43b4e8c2f7d89c2794a7ba",
+      "size": 3051
+    }
+  ]
+}
