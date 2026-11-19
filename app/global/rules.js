@@ -421,9 +421,9 @@
           #istighosah-dialog {
             position: fixed; inset: 0; z-index: 100000;
             display: grid; place-items: center; padding: 20px;
-            background: rgba(12, 18, 30, .38);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background: rgba(12, 18, 30, .52);
+            backdrop-filter: blur(9px);
+            -webkit-backdrop-filter: blur(9px);
           }
           #istighosah-dialog .dialog-card {
             width: min(100%, 390px); padding: 22px 22px 17px;
