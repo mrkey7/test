@@ -85,7 +85,20 @@ self.addEventListener('fetch', event => {
     const cached = await cache.match(request);
     if (cached) return cached;
 
-    return new Response('Data tidak ditemukan di cache. Silakan buka ulang aplikasi untuk pemulihan.', {
+    // Navigasi ke alamat utama dapat berupa "/" sementara file yang diprecache
+    // bernama "index.html". Sajikan index.html dari cache untuk alamat root saja.
+    if (request.mode === 'navigate') {
+      const scopeUrl = new URL(self.registration.scope);
+      const isRootNavigation =
+        url.pathname.replace(/\\/$/, '') === scopeUrl.pathname.replace(/\\/$/, '');
+      if (isRootNavigation) {
+        const indexUrl = new URL('./index.html', self.registration.scope).href;
+        const cachedIndex = await cache.match(indexUrl);
+        if (cachedIndex) return cachedIndex;
+      }
+    }
+
+    return new Response('Data tidak ditemukan di cache.', {
       status: 504,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
