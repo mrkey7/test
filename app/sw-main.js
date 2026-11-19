@@ -1,4 +1,4 @@
-// Update marker: reload skipExtensions diagnostics
+// Update marker: remove recovery navigation fallback
 const CACHE_NAME = 'istighosah-static-v23';
 const CACHE_PREFIX = 'istighosah-static-';
 const META_CACHE = 'istighosah-cache-meta-v1';
@@ -84,96 +84,6 @@ self.addEventListener('fetch', event => {
     const cache = await caches.open(cacheName);
     const cached = await cache.match(request);
     if (cached) return cached;
-
-    if (request.mode === 'navigate') {
-      // Jika dokumen aplikasi tidak tersedia, tampilkan halaman pemulihan mandiri.
-      const recoveryUrl = new URL('./app/recovery/index.html', self.registration.scope).href;
-      const recovery = await cache.match(recoveryUrl);
-      if (recovery) {
-        // Recovery hanya tampilan sementara; jangan biarkan browser menyimpan
-        // respons ini sebagai dokumen navigasi di HTTP Cache.
-        const headers = new Headers(recovery.headers);
-        headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-        headers.set('Pragma', 'no-cache');
-        headers.set('Expires', '0');
-        return new Response(recovery.body, {
-          status: recovery.status,
-          statusText: recovery.statusText,
-          headers
-        });
-      }
-
-      // Fallback darurat: tetap tampilkan tombol pemulihan jika file recovery ikut hilang.
-      return new Response(`<!doctype html>
-<html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111827">
-<title>Pemulihan Aplikasi Istighosah</title>
-<style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#111827;color:#f9fafb;font:16px/1.5 Arial,sans-serif}
-main{width:min(100%,440px);padding:28px;border:1px solid #374151;border-radius:16px;background:#1f2937;text-align:center;box-shadow:0 16px 48px #0005}
-.symbol{font-size:42px;margin-bottom:12px}h1{font-size:21px;margin:0 0 12px}p{color:#d1d5db;margin:0 0 20px}
-button,.home-link{display:block;width:100%;border:0;border-radius:9px;padding:14px 18px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}
-button{background:#2563eb;color:white}
-.home-link{margin-top:10px;background:#374151;color:#f9fafb}
-button:disabled{opacity:.55;cursor:wait}#status{min-height:24px;margin-top:16px;font-size:13px;color:#d1d5db}
-</style>
-</head>
-<body>
-<main>
-<div class="symbol">⚠️</div>
-<h1>Data aplikasi tidak lengkap</h1>
-<p>Aplikasi tidak dapat dibuka karena sebagian data yang diperlukan tidak tersedia. Hubungkan perangkat ke internet, lalu unduh ulang seluruh data aplikasi.</p>
-<button id="reload" type="button">RELOAD DATA</button>
-<a class="home-link" id="home" href="./">KEMBALI KE HALAMAN UTAMA</a>
-<div id="status" role="status" aria-live="polite">Pemulihan akan mengunduh seluruh file dan mengabaikan aturan skip.</div>
-</main>
-<script>
-(() => {
- const button=document.getElementById('reload');
- const status=document.getElementById('status');
- async function goHome(){
-  const registration=await navigator.serviceWorker?.getRegistration();
-  location.replace(registration?.scope || new URL('./',location.href).href);
- }
- document.getElementById('home').addEventListener('click',event=>{
-  event.preventDefault();
-  goHome();
- });
- button.addEventListener('click',async()=>{
-  if(!navigator.onLine){status.textContent='Perangkat sedang offline. Hubungkan ke internet terlebih dahulu.';return;}
-  const worker=navigator.serviceWorker?.controller;
-  if(!worker){status.textContent='Service Worker belum aktif. Muat ulang halaman saat online untuk mencoba kembali.';return;}
-  button.disabled=true;
-  status.textContent='Menyiapkan pemulihan…';
-  const channel=new MessageChannel();
-  const timeout=setTimeout(()=>{button.disabled=false;status.textContent='Proses terlalu lama. Periksa koneksi lalu coba kembali.';channel.port1.close();},180000);
-  channel.port1.onmessage=event=>{
-   const data=event.data||{};
-   if(data.progress){status.textContent='Mengunduh '+data.current+' dari '+data.total+' file…';return;}
-   if(data.detail){status.textContent=data.text||'Memproses…';return;}
-   clearTimeout(timeout);
-   channel.port1.close();
-   if(data.ok){status.textContent='Pemulihan berhasil. Membuka halaman utama…';setTimeout(goHome,500);}
-   else{button.disabled=false;status.textContent=data.message||'Pemulihan gagal. Cache lama tetap dipertahankan.';}
-  };
-  worker.postMessage({type:'RELOAD_DATA_FORCE'},[channel.port2]);
- });
-})();
-</script>
-</body>
-</html>`, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-    }
 
     return new Response('Data tidak ditemukan di cache. Silakan buka ulang aplikasi untuk pemulihan.', {
       status: 504,
