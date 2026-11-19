@@ -549,6 +549,37 @@ html:not([data-theme="gelap"]) .heading-logo {
     outline: none;
   }
 
+/* Advanced dibuka sebagai halaman terpisah, bukan submenu yang bertumpuk. */
+#menu-panel .settings-advanced > .settings-advanced-submenu {
+    display: none !important;
+}
+
+#menu-panel .settings-advanced {
+    position: relative;
+    z-index: auto;
+}
+
+#menu-panel .settings-advanced > .settings-choice__trigger {
+    width: 100%;
+    min-height: 38px;
+}
+
+/* Help mengikuti tinggi dan lebar baris menu lainnya. */
+#menu-panel > [data-setting-id="android-help"],
+#menu-panel > [data-setting-id="android-help"] > .settings-action__button {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 38px;
+}
+#menu-panel > [data-setting-id="android-help"] > .settings-action__button {
+    display: block;
+}
+
+/* Halaman Advanced memakai panel kedua yang sama dengan Tema & Font. */
+#menu-panel .android-advanced-page {
+    grid-row: 1 / span 99;
+}
+
 .settings-advanced-toggle {
     border: 0 !important;
     border-radius: 4px;
