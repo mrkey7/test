@@ -410,8 +410,85 @@
     return button;
   }
 
+  function showDialog(message, confirmMode = false) {
+    return new Promise(resolve => {
+      document.getElementById('istighosah-dialog')?.remove();
+
+      if (!document.getElementById('istighosah-dialog-style')) {
+        const style = document.createElement('style');
+        style.id = 'istighosah-dialog-style';
+        style.textContent = `
+          #istighosah-dialog {
+            position: fixed; inset: 0; z-index: 100000;
+            display: grid; place-items: center; padding: 20px;
+            background: rgba(12, 18, 30, .38);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+          }
+          #istighosah-dialog .dialog-card {
+            width: min(100%, 390px); padding: 22px 22px 17px;
+            border: 1px solid rgba(120,130,150,.22); border-radius: 16px;
+            background: var(--menu-bg, #fff); color: var(--menu-fg, #222);
+            box-shadow: 0 18px 55px rgba(0,0,0,.25);
+            animation: istighosah-dialog-in .16s ease-out;
+          }
+          #istighosah-dialog .dialog-message {
+            margin: 0; font: 15px/1.55 Arial, sans-serif;
+            white-space: pre-line;
+          }
+          #istighosah-dialog .dialog-actions {
+            display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px;
+          }
+          #istighosah-dialog button {
+            min-width: 76px; min-height: 38px; padding: 7px 15px;
+            border: 1px solid var(--menu-border, #ccc); border-radius: 9px;
+            background: transparent; color: inherit; font: 14px Arial, sans-serif;
+            cursor: pointer;
+          }
+          #istighosah-dialog button.dialog-primary {
+            border-color: var(--control-accent, #2457c5);
+            background: var(--control-accent, #2457c5); color: #fff;
+          }
+          @keyframes istighosah-dialog-in {
+            from { opacity: 0; transform: translateY(7px) scale(.98); }
+            to { opacity: 1; transform: none; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            #istighosah-dialog .dialog-card { animation: none; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      const overlay = document.createElement('div');
+      overlay.id = 'istighosah-dialog';
+      overlay.innerHTML = `
+        <section class="dialog-card" role="dialog" aria-modal="true">
+          <p class="dialog-message"></p>
+          <div class="dialog-actions">
+            ${confirmMode ? '<button type="button" data-result="false">Batal</button>' : ''}
+            <button type="button" class="dialog-primary" data-result="true">${confirmMode ? 'Lanjutkan' : 'OK'}</button>
+          </div>
+        </section>`;
+      overlay.querySelector('.dialog-message').textContent = message;
+
+      const finish = value => {
+        overlay.remove();
+        resolve(value);
+      };
+      overlay.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', () => finish(button.dataset.result === 'true'));
+      });
+      overlay.addEventListener('click', event => {
+        if (event.target === overlay && !confirmMode) finish(true);
+      });
+      document.body.appendChild(overlay);
+      overlay.querySelector('.dialog-primary').focus();
+    });
+  }
+
   function showNotice(message) {
-    window.alert(message);
+    return showDialog(message);
   }
 
   async function init({ panel, readings }) {
@@ -642,8 +719,8 @@
       writeSettings({ jarakBlok, ukuranHuruf, jarakBaris, harakat, jenisHuruf, tebal, tema, selangSeling });
     }
 
-    function resetDefaults() {
-      if (!window.confirm('Reset Setting akan mengembalikan seluruh pengaturan ke nilai bawaan. Lanjutkan?')) return;
+    async function resetDefaults() {
+      if (!await showDialog('Reset Setting akan mengembalikan seluruh pengaturan ke nilai bawaan. Lanjutkan?', true)) return;
       jarakBlok = config.jarakBlok.default;
       ukuranHuruf = config.ukuranHuruf.default;
       jarakBaris = config.jarakBaris.default;
@@ -683,7 +760,7 @@
         return;
       }
 
-      if (!window.confirm('Reload Data akan menghapus cache lama dan mengambil seluruh data langsung dari server. Lanjutkan?')) return;
+      if (!await showDialog('Reload Data akan menghapus cache lama dan mengambil seluruh data langsung dari server. Lanjutkan?', true)) return;
 
       const registration = await navigator.serviceWorker?.getRegistration('../');
       const worker = navigator.serviceWorker?.controller || registration?.active;
