@@ -586,7 +586,11 @@
     const resetButton = createAction(panel, 'Reset Setting', 'resetSetting', resetDefaults);
     advancedSubmenu.append(resetButton.parentElement);
 
-    panel.querySelectorAll('[data-setting-id]').forEach(element => applyInfo(element, element.dataset.settingId));
+    panel.querySelectorAll('[data-setting-id]').forEach(element => {
+      const id = element.dataset.settingId;
+      if (panel.classList.contains('settings-panel--pc') && ['jenisHuruf', 'tema'].includes(id)) return;
+      applyInfo(element, id);
+    });
 
     let jarakBlok = saved.jarakBlok;
     let ukuranHuruf = saved.ukuranHuruf;
