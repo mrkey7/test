@@ -150,8 +150,6 @@
     const item = document.createElement('label');
     item.className = 'settings-toggle android-view-menu-item';
     item.dataset.settingId = 'androidView';
-    item.hidden = true;
-
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.checked = false;
@@ -159,7 +157,8 @@
     const text = document.createElement('span');
     text.textContent = 'Android View';
     item.append(input, text);
-    panel.appendChild(item);
+    const advancedSubmenu = panel.querySelector('.settings-advanced-submenu');
+    (advancedSubmenu || panel).appendChild(item);
 
     function setAndroidView(enabled) {
       input.checked = enabled;
