@@ -115,7 +115,9 @@ self.addEventListener('fetch', event => {
 *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#111827;color:#f9fafb;font:16px/1.5 Arial,sans-serif}
 main{width:min(100%,440px);padding:28px;border:1px solid #374151;border-radius:16px;background:#1f2937;text-align:center;box-shadow:0 16px 48px #0005}
 .symbol{font-size:42px;margin-bottom:12px}h1{font-size:21px;margin:0 0 12px}p{color:#d1d5db;margin:0 0 20px}
-button{width:100%;border:0;border-radius:9px;padding:14px 18px;background:#2563eb;color:white;font-size:16px;font-weight:700;cursor:pointer}
+button,.home-link{display:block;width:100%;border:0;border-radius:9px;padding:14px 18px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}
+button{background:#2563eb;color:white}
+.home-link{margin-top:10px;background:#374151;color:#f9fafb}
 button:disabled{opacity:.55;cursor:wait}#status{min-height:24px;margin-top:16px;font-size:13px;color:#d1d5db}
 </style>
 </head>
@@ -125,12 +127,21 @@ button:disabled{opacity:.55;cursor:wait}#status{min-height:24px;margin-top:16px;
 <h1>Data aplikasi tidak lengkap</h1>
 <p>Aplikasi tidak dapat dibuka karena sebagian data yang diperlukan tidak tersedia. Hubungkan perangkat ke internet, lalu unduh ulang seluruh data aplikasi.</p>
 <button id="reload" type="button">RELOAD DATA</button>
+<a class="home-link" id="home" href="./">KEMBALI KE HALAMAN UTAMA</a>
 <div id="status" role="status" aria-live="polite">Pemulihan akan mengunduh seluruh file dan mengabaikan aturan skip.</div>
 </main>
 <script>
 (() => {
  const button=document.getElementById('reload');
  const status=document.getElementById('status');
+ async function goHome(){
+  const registration=await navigator.serviceWorker?.getRegistration();
+  location.replace(registration?.scope || new URL('./',location.href).href);
+ }
+ document.getElementById('home').addEventListener('click',event=>{
+  event.preventDefault();
+  goHome();
+ });
  button.addEventListener('click',async()=>{
   if(!navigator.onLine){status.textContent='Perangkat sedang offline. Hubungkan ke internet terlebih dahulu.';return;}
   const worker=navigator.serviceWorker?.controller;
@@ -145,7 +156,7 @@ button:disabled{opacity:.55;cursor:wait}#status{min-height:24px;margin-top:16px;
    if(data.detail){status.textContent=data.text||'Memproses…';return;}
    clearTimeout(timeout);
    channel.port1.close();
-   if(data.ok){status.textContent='Pemulihan berhasil. Membuka aplikasi…';setTimeout(()=>location.reload(),500);}
+   if(data.ok){status.textContent='Pemulihan berhasil. Membuka halaman utama…';setTimeout(goHome,500);}
    else{button.disabled=false;status.textContent=data.message||'Pemulihan gagal. Cache lama tetap dipertahankan.';}
   };
   worker.postMessage({type:'RELOAD_DATA_FORCE'},[channel.port2]);
