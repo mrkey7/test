@@ -770,6 +770,7 @@
       tema = config.tema.default;
       selangSeling = config.selangSeling.default;
       tatweelAktif = config.tatweel.aktif;
+      ['menu', 'tatweel', 'font'].forEach(id => localStorage.removeItem(`istighosah-pc-shortcut-${id}`));
 
       gapControl.input.value = String(jarakBlok);
       gapControl.output.textContent = `${jarakBlok} px`;
