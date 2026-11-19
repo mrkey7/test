@@ -326,10 +326,16 @@
       readings: target
     });
     setupAndroidSettingsPages(menuPanel);
+    setupAndroidAdvancedPage(menuPanel);
     setupAndroidGestureToggle(menuPanel);
     setupAndroidHelp(menuPanel);
     setupAndroidInstall(menuPanel);
     setupAndroidViewToggle(menuPanel);
+
+    // Help selalu menjadi item terakhir pada daftar menu utama.
+    const helpItem = menuPanel.querySelector('[data-setting-id="android-help"]');
+    const firstPage = menuPanel.querySelector(':scope > .android-settings-page');
+    if (helpItem) menuPanel.insertBefore(helpItem, firstPage || null);
   }
 
   const trigger = document.querySelector('.menu-trigger');
@@ -421,6 +427,50 @@
     });
   }
 
+  function setupAndroidAdvancedPage(menuPanel) {
+    const group = menuPanel.querySelector('.settings-advanced');
+    const trigger = group?.querySelector('.settings-choice__trigger');
+    const submenu = group?.querySelector('.settings-advanced-submenu');
+    if (!group || !trigger || !submenu) return;
+
+    const page = document.createElement('div');
+    page.className = 'android-settings-page android-advanced-page';
+    page.hidden = true;
+    menuPanel.appendChild(page);
+
+    function closePage() {
+      page.hidden = true;
+      const heading = page.querySelector('.android-settings-page-heading');
+      if (heading) heading.remove();
+      while (page.firstChild) submenu.appendChild(page.firstChild);
+      menuPanel.classList.remove('android-settings-page-open');
+    }
+    menuPanel.closeAndroidAdvancedPage = closePage;
+
+    trigger.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      page.replaceChildren();
+
+      const heading = document.createElement('div');
+      heading.className = 'android-settings-page-heading';
+      const back = document.createElement('button');
+      back.type = 'button';
+      back.className = 'android-settings-page-back';
+      back.textContent = '‹';
+      back.setAttribute('aria-label', 'Kembali ke pengaturan');
+      const title = document.createElement('span');
+      title.textContent = 'Advanced';
+      heading.append(back, title);
+      page.appendChild(heading);
+
+      while (submenu.firstChild) page.appendChild(submenu.firstChild);
+      page.hidden = false;
+      menuPanel.classList.add('android-settings-page-open');
+      back.addEventListener('click', closePage);
+    });
+  }
+
   function openMenu() {
     panel.hidden = false;
     trigger.setAttribute('aria-expanded', 'true');
@@ -428,6 +478,7 @@
 
   function closeWholeMenu() {
     panel.closeAndroidSettingsPage?.();
+    panel.closeAndroidAdvancedPage?.();
     panel.closeAndroidHelpPage?.();
     panel.hidden = true;
     trigger.setAttribute('aria-expanded', 'false');
