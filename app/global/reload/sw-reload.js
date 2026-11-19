@@ -2,7 +2,8 @@
 // seluruh file berhasil diunduh dan diverifikasi.
 // Pemeriksaan skip rules hanya dilakukan di dalam proses RELOAD_DATA.
 self.addEventListener('message', event => {
-  if (event.data?.type !== 'RELOAD_DATA') return;
+  const forceFull = event.data?.type === 'RELOAD_DATA_FORCE';
+  if (!forceFull && event.data?.type !== 'RELOAD_DATA') return;
   const port = event.ports?.[0];
 
   event.waitUntil((async () => {
@@ -21,7 +22,7 @@ self.addEventListener('message', event => {
       // Konfigurasi skip dibaca dari cache lama hanya saat cache lama tersedia.
       // Jika cache lama tidak ada, semua file akan diunduh tanpa menerapkan skip.
       let skipRules = [];
-      if (previous) {
+      if (previous && !forceFull) {
         const configUrl = new URL('./global/reload/reload.json', self.registration.scope).href;
         const configResponse = await previous.match(configUrl);
         if (configResponse) {
@@ -77,7 +78,7 @@ self.addEventListener('message', event => {
 
       for (const path of urls) {
         const url = new URL(path, self.registration.scope).href;
-        const shouldSkip = hasPreviousCache && matchesSkipRule(path);
+        const shouldSkip = !forceFull && hasPreviousCache && matchesSkipRule(path);
 
         // Skip hanya menggunakan cache lama jika file yang dimaksud benar-benar ada.
         // Cache lama yang hilang atau file yang tidak ada tetap akan diunduh.
