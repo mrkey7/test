@@ -2,8 +2,7 @@
 // seluruh file berhasil diunduh dan diverifikasi.
 // Pemeriksaan skip rules hanya dilakukan di dalam proses RELOAD_DATA.
 self.addEventListener('message', event => {
-  const forceFull = event.data?.type === 'RELOAD_DATA_FORCE';
-  if (!forceFull && event.data?.type !== 'RELOAD_DATA') return;
+  if (event.data?.type !== 'RELOAD_DATA') return;
   const port = event.ports?.[0];
 
   event.waitUntil((async () => {
@@ -19,21 +18,18 @@ self.addEventListener('message', event => {
       const hasPreviousCache = cacheKeys.includes(previousName);
       const previous = hasPreviousCache ? await caches.open(previousName) : null;
 
-      // Konfigurasi skip folder dibaca dari server hanya saat Reload Data dipanggil.
-      // Recovery penuh selalu mengabaikan seluruh aturan skip.
+      // Konfigurasi skip dibaca dari server setiap kali Reload Data dijalankan.
       let skipFolders = [];
       let skipExtensions = [];
-      if (!forceFull) {
-        const configUrl = new URL('./app/global/reload/reload.json', self.registration.scope).href;
-        const configResponse = await fetch(new Request(configUrl, {
-          cache: 'no-store',
-          signal: controller.signal
-        }));
-        if (!configResponse.ok) throw new Error(`Konfigurasi Reload Data gagal dimuat (${configResponse.status}).`);
-        const config = await configResponse.json();
-        if (Array.isArray(config.skipFolders)) skipFolders = config.skipFolders;
-        if (Array.isArray(config.skipExtensions)) skipExtensions = config.skipExtensions;
-      }
+      const configUrl = new URL('./app/global/reload/reload.json', self.registration.scope).href;
+      const configResponse = await fetch(new Request(configUrl, {
+        cache: 'no-store',
+        signal: controller.signal
+      }));
+      if (!configResponse.ok) throw new Error(`Konfigurasi Reload Data gagal dimuat (${configResponse.status}).`);
+      const config = await configResponse.json();
+      if (Array.isArray(config.skipFolders)) skipFolders = config.skipFolders;
+      if (Array.isArray(config.skipExtensions)) skipExtensions = config.skipExtensions;
 
       function isSkippedPath(path) {
         const normalizedPath = String(path).split('/').filter(Boolean).join('/').toLowerCase();
@@ -64,7 +60,7 @@ self.addEventListener('message', event => {
 
       for (const path of urls) {
         const url = new URL(path, self.registration.scope).href;
-        const matchesSkipRule = !forceFull && isSkippedPath(path);
+        const matchesSkipRule = isSkippedPath(path);
         const shouldSkip = matchesSkipRule && hasPreviousCache;
         let diagnostic = '';
 
@@ -80,7 +76,7 @@ self.addEventListener('message', event => {
             continue;
           }
           diagnostic = 'Aturan cocok, tetapi file tidak ditemukan di cache lama';
-        } else if (!forceFull && /\\.lnk$/i.test(path)) {
+        } else if (/\\.lnk$/i.test(path)) {
           diagnostic = !matchesSkipRule
             ? 'Aturan ekstensi tidak cocok'
             : 'Cache sebelumnya tidak tersedia';
