@@ -544,39 +544,34 @@
       panel, 'Ukuran', config.ukuranHuruf, saved.ukuranHuruf, '%', 'ukuranHuruf'
     );
 
-    // Daftar Advanced dibuat pada posisi setelah menu utama.
+    // Advanced selalu tampil sebagai submenu, seperti Font dan Tema.
+    const advancedGroup = document.createElement('div');
+    advancedGroup.className = 'settings-choice settings-choice--cascade settings-advanced';
+    const advancedTrigger = document.createElement('button');
+    advancedTrigger.type = 'button';
+    advancedTrigger.className = 'settings-choice__trigger';
+    advancedTrigger.textContent = 'Advanced  ›';
+    advancedTrigger.setAttribute('aria-haspopup', 'true');
+    advancedTrigger.setAttribute('aria-label', 'Advanced');
+    const advancedSubmenu = document.createElement('div');
+    advancedSubmenu.className = 'settings-choice__submenu settings-advanced-submenu';
+    advancedSubmenu.setAttribute('role', 'menu');
+    advancedGroup.append(advancedTrigger, advancedSubmenu);
+    panel.appendChild(advancedGroup);
+
     const lineGapControl = createControl(
       panel, 'Jarak Baris', config.jarakBaris, saved.jarakBaris, '', 'jarakBaris'
     );
     const gapControl = createControl(
       panel, 'Jarak Bagian', config.jarakBlok, saved.jarakBlok, ' px', 'jarakBlok'
     );
-
-    const advancedIds = new Set([...(config.advancedSetting || []), 'androidView']);
-    const advancedButton = createAction(panel, 'Advanced', 'advancedAccess', () => {
-      try { sessionStorage.setItem('istighosah-advanced-open-v1', '1'); } catch {}
-      updateAdvancedVisibility(true);
-    });
-    advancedButton.parentElement.classList.add('settings-advanced-toggle');
-
-    function updateAdvancedVisibility(open) {
-      let isOpen = open;
-      if (typeof isOpen !== 'boolean') {
-        try { isOpen = sessionStorage.getItem('istighosah-advanced-open-v1') === '1'; }
-        catch { isOpen = false; }
-      }
-      advancedButton.parentElement.hidden = isOpen;
-      panel.querySelectorAll('[data-setting-id]').forEach(element => {
-        if (advancedIds.has(element.dataset.settingId)) element.hidden = !isOpen;
-      });
-    }
+    advancedSubmenu.append(lineGapControl.input.parentElement, gapControl.input.parentElement);
 
     const resetButton = createAction(panel, 'Reset Setting', 'resetSetting', resetDefaults);
     const reloadButton = createAction(panel, 'Reload Data', 'reloadData', reloadData);
+    advancedSubmenu.append(resetButton.parentElement, reloadButton.parentElement);
 
     panel.querySelectorAll('[data-setting-id]').forEach(element => applyInfo(element, element.dataset.settingId));
-    applyInfo(advancedButton.parentElement, 'advancedAccess');
-    updateAdvancedVisibility();
 
     let jarakBlok = saved.jarakBlok;
     let ukuranHuruf = saved.ukuranHuruf;
@@ -793,8 +788,6 @@
       applyFontScale();
       scheduleTatweel();
       save();
-      try { sessionStorage.removeItem('istighosah-advanced-open-v1'); } catch {}
-      updateAdvancedVisibility(false);
       showHomeTransition();
     }
 
