@@ -112,13 +112,18 @@ self.addEventListener('message', event => {
         .map(key => caches.delete(key)));
 
       const cache = await caches.open(CACHE_NAME);
+      const total = PRECACHE_URLS.length;
+      let current = 0;
       for (const path of PRECACHE_URLS) {
         const url = new URL(path, self.registration.scope).href;
+        port?.postMessage({ progress: true, current, total, path, message: 'Mengambil data dari server…' });
         const response = await fetch(new Request(url, { cache: 'no-store' }));
         if (!response.ok) throw new Error(`Unduhan gagal: ${path} (${response.status})`);
         await cache.put(url, response);
+        current++;
+        port?.postMessage({ progress: true, current, total, path, message: 'File berhasil dimuat.' });
       }
-      port?.postMessage({ ok: true });
+      port?.postMessage({ ok: true, message: `Berhasil memuat ${current} file.` });
     } catch (error) {
       const keys = await caches.keys();
       await Promise.all(keys
