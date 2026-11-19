@@ -108,9 +108,14 @@ self.addEventListener('message', event => {
       stagingName = `${CACHE_PREFIX}stage-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const staging = await caches.open(stagingName);
       const total = PRECACHE_URLS.length;
+      const ignoredTotal = PRECACHE_URLS.filter(path => path.includes('/aset/')).length;
+      const downloadTotal = total - ignoredTotal;
       let current = 0;
+      let downloaded = 0;
+      let ignored = 0;
 
       const previous = await caches.open(previousName);
+      port?.postMessage({ progress: true, current, total, downloaded, ignored, path: '', message: 'Menyiapkan daftar file…' });
 
       for (const path of PRECACHE_URLS) {
         const url = new URL(path, self.registration.scope).href;
@@ -122,7 +127,8 @@ self.addEventListener('message', event => {
           if (!cachedAsset) throw new Error(`Aset tidak ditemukan di cache lama: ${path}`);
           await staging.put(url, cachedAsset);
           current++;
-          port?.postMessage({ progress: true, current, total, path, message: 'Cache lama dipertahankan.' });
+          ignored++;
+          port?.postMessage({ progress: true, current, total, downloaded, ignored, path, message: 'Cache lama dipertahankan.' });
           continue;
         }
 
@@ -134,7 +140,8 @@ self.addEventListener('message', event => {
 
         await staging.put(url, response);
         current++;
-        port?.postMessage({ progress: true, current, total, path, message: 'File berhasil dimuat.' });
+        downloaded++;
+        port?.postMessage({ progress: true, current, total, downloaded, ignored, path, message: 'File berhasil dimuat.' });
         port?.postMessage({ detail: true, text: `Selesai: ${path}` });
       }
 
@@ -159,7 +166,13 @@ self.addEventListener('message', event => {
       }
 
       clearTimeout(reloadTimeout);
-      port?.postMessage({ ok: true, message: `Berhasil memuat ${current} file.` });
+      port?.postMessage({
+        ok: true,
+        total,
+        downloaded,
+        ignored,
+        message: `Berhasil memuat ${downloaded} file; ${ignored} file dipertahankan dari cache lama.`
+      });
     } catch (error) {
       clearTimeout(reloadTimeout);
       if (stagingName && !activated) await caches.delete(stagingName);
