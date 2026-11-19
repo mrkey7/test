@@ -110,9 +110,24 @@ self.addEventListener('message', event => {
       const total = PRECACHE_URLS.length;
       let current = 0;
 
+      const previous = await caches.open(previousName);
+
       for (const path of PRECACHE_URLS) {
         const url = new URL(path, self.registration.scope).href;
+        const isAsset = path.includes('/aset/');
+
+        if (isAsset) {
+          port?.postMessage({ detail: true, text: `Mempertahankan cache lama: ${path}` });
+          const cachedAsset = await previous.match(url);
+          if (!cachedAsset) throw new Error(`Aset tidak ditemukan di cache lama: ${path}`);
+          await staging.put(url, cachedAsset);
+          current++;
+          port?.postMessage({ progress: true, current, total, path, message: 'Cache lama dipertahankan.' });
+          continue;
+        }
+
         port?.postMessage({ progress: true, current, total, path, message: 'Mengambil data dari server…' });
+        port?.postMessage({ detail: true, text: `Mengunduh: ${path}` });
 
         const response = await fetch(new Request(url, { cache: 'no-store', signal: controller.signal }));
         if (!response.ok) throw new Error(`Unduhan gagal: ${path} (${response.status})`);
@@ -120,6 +135,7 @@ self.addEventListener('message', event => {
         await staging.put(url, response);
         current++;
         port?.postMessage({ progress: true, current, total, path, message: 'File berhasil dimuat.' });
+        port?.postMessage({ detail: true, text: `Selesai: ${path}` });
       }
 
       // Pastikan seluruh daftar benar-benar tersedia sebelum mengganti cache aktif.
