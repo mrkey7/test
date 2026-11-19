@@ -829,7 +829,7 @@
           overlay.querySelector('.reload-progress-fill').style.width = `${percent}%`;
         },
         finish(ok) {
-          overlay.querySelector('.reload-progress-title').textContent = ok ? 'Reload Data berhasil' : 'Reload Data gagal';
+          overlay.querySelector('.reload-progress-title').textContent = ok ? 'Reload Data berhasil' : 'Reload Data gagal. Data lama tetap digunakan';
           overlay.querySelector('.reload-progress-status').textContent = ok ? '100%' : 'Gagal';
           if (ok) overlay.querySelector('.reload-progress-fill').style.width = '100%';
           button.disabled = false;
@@ -844,7 +844,7 @@
         return;
       }
 
-      if (!await showDialog('Reload Data akan menghapus cache lama dan mengambil seluruh data langsung dari server. Lanjutkan?', true)) return;
+      if (!await showDialog('Reload Data akan mengambil seluruh data dari server. Cache lama tetap aman jika proses gagal. Lanjutkan?', true)) return;
 
       const registration = await navigator.serviceWorker?.getRegistration('../');
       const worker = navigator.serviceWorker?.controller || registration?.active;
