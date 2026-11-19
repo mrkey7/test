@@ -89,7 +89,19 @@ self.addEventListener('fetch', event => {
       // Jika dokumen aplikasi tidak tersedia, tampilkan halaman pemulihan mandiri.
       const recoveryUrl = new URL('./app/recovery/index.html', self.registration.scope).href;
       const recovery = await cache.match(recoveryUrl);
-      if (recovery) return recovery;
+      if (recovery) {
+        // Recovery hanya tampilan sementara; jangan biarkan browser menyimpan
+        // respons ini sebagai dokumen navigasi di HTTP Cache.
+        const headers = new Headers(recovery.headers);
+        headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+        headers.set('Pragma', 'no-cache');
+        headers.set('Expires', '0');
+        return new Response(recovery.body, {
+          status: recovery.status,
+          statusText: recovery.statusText,
+          headers
+        });
+      }
 
       // Fallback darurat: tetap tampilkan tombol pemulihan jika file recovery ikut hilang.
       return new Response(`<!doctype html>
@@ -143,7 +155,12 @@ button:disabled{opacity:.55;cursor:wait}#status{min-height:24px;margin-top:16px;
 </body>
 </html>`, {
         status: 200,
-        headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       });
     }
 
