@@ -100,6 +100,7 @@ self.addEventListener('message', event => {
 
   event.waitUntil((async () => {
     let stagingName = '';
+    let activated = false;
     try {
       const previousName = await getActiveCacheName();
       stagingName = `${CACHE_PREFIX}stage-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -127,16 +128,21 @@ self.addEventListener('message', event => {
 
       // Pergantian pointer adalah titik aktivasi cache baru.
       await setActiveCacheName(stagingName);
+      activated = true;
 
-      // Cache lama baru dihapus setelah cache baru resmi menjadi cache aktif.
-      const keys = await caches.keys();
-      await Promise.all(keys
-        .filter(key => key.startsWith(CACHE_PREFIX) && key !== stagingName)
-        .map(key => caches.delete(key)));
+      // Kegagalan membersihkan cache lama tidak boleh membatalkan cache baru.
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys
+          .filter(key => key.startsWith(CACHE_PREFIX) && key !== stagingName)
+          .map(key => caches.delete(key)));
+      } catch (cleanupError) {
+        console.warn('Cache lama belum berhasil dibersihkan:', cleanupError);
+      }
 
       port?.postMessage({ ok: true, message: `Berhasil memuat ${current} file.` });
     } catch (error) {
-      if (stagingName) await caches.delete(stagingName);
+      if (stagingName && !activated) await caches.delete(stagingName);
       console.error('Reload Data gagal:', error);
       port?.postMessage({ ok: false, message: 'Reload Data gagal. Cache lama tetap digunakan.' });
     }
