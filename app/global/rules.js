@@ -829,7 +829,7 @@
           #istighosah-dialog .reload-progress-counts { margin-top:9px; color:var(--menu-fg,#222); font:12px Arial,sans-serif; text-align:center; font-variant-numeric:tabular-nums; }
           #istighosah-dialog .reload-progress-detail { margin-top:9px; max-height:92px; overflow:auto; color:var(--menu-muted,#666); font:12px/1.5 Arial,sans-serif; overflow-wrap:anywhere; text-align:left; }
           #istighosah-dialog .reload-progress-files { display:grid; gap:5px; margin-top:10px; min-height:0; flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain; padding:8px; border:1px solid var(--menu-border,#ddd); border-radius:5px; text-align:left; }
-          #istighosah-dialog .reload-progress-file { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; font:12px/1.4 Arial,sans-serif; }
+          #istighosah-dialog .reload-progress-file { display:grid; grid-template-columns:28px minmax(0,1fr) auto; align-items:start; gap:10px; font:12px/1.4 Arial,sans-serif; }\n          #istighosah-dialog .reload-progress-file-number { color:var(--menu-muted,#666); text-align:right; font-variant-numeric:tabular-nums; }
           #istighosah-dialog .reload-progress-file-name { min-width:0; overflow-wrap:anywhere; color:var(--menu-fg,#222); }
           #istighosah-dialog .reload-progress-file-status { flex:0 0 auto; color:var(--menu-muted,#666); white-space:nowrap; }
           #istighosah-dialog .reload-return { display:block; width:100%; margin-top:22px; }
@@ -856,6 +856,22 @@
           overlay.querySelector('.reload-progress-fill').style.width = `${percent}%`;
           overlay.querySelector('.reload-progress-counts').textContent =
             `Total: ${total} file · Diunduh: ${Number(data.downloaded) || 0} · Diabaikan: ${Number(data.ignored) || 0}`;
+          if (detailed && data.path && data.status) {
+            const row = document.createElement('div');
+            row.className = 'reload-progress-file';
+            const number = document.createElement('span');
+            number.className = 'reload-progress-file-number';
+            number.textContent = String(current);
+            const name = document.createElement('span');
+            name.className = 'reload-progress-file-name';
+            name.textContent = data.path;
+            const state = document.createElement('span');
+            state.className = 'reload-progress-file-status';
+            state.textContent = data.status;
+            row.append(number, name, state);
+            fileList.appendChild(row);
+            fileList.scrollTop = fileList.scrollHeight;
+          }
         },
         detail(text) {
           if (!detailed) overlay.querySelector('.reload-progress-detail').textContent = text;
