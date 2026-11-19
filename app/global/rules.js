@@ -751,9 +751,77 @@
       updateAdvancedVisibility(false);
     }
 
+    function showReloadProgress() {
+      document.getElementById('istighosah-dialog')?.remove();
+
+      const overlay = document.createElement('div');
+      overlay.id = 'istighosah-dialog';
+      overlay.innerHTML = `
+        <section class="dialog-card reload-progress-card" role="dialog" aria-modal="true" aria-live="polite">
+          <p class="dialog-message reload-progress-title">Menyiapkan Reload Data…</p>
+          <p class="reload-progress-detail">Mohon tunggu, jangan tutup panel ini.</p>
+          <div class="reload-progress-track"><div class="reload-progress-fill"></div></div>
+          <div class="reload-progress-meta"><span class="reload-progress-count">0 dari 0 file</span><strong class="reload-progress-percent">0%</strong></div>
+          <p class="reload-progress-hint">Panel ini akan tetap tampil sampai Anda mengeklik area di luarnya setelah proses selesai.</p>
+        </section>`;
+
+      if (!document.getElementById('istighosah-reload-progress-style')) {
+        const style = document.createElement('style');
+        style.id = 'istighosah-reload-progress-style';
+        style.textContent = `
+          #istighosah-dialog .reload-progress-card { width:min(100%,420px); }
+          #istighosah-dialog .reload-progress-title { font-weight:700; margin-bottom:7px; }
+          #istighosah-dialog .reload-progress-detail { margin:0; color:var(--menu-muted,#666); font:13px/1.5 Arial,sans-serif; overflow-wrap:anywhere; }
+          #istighosah-dialog .reload-progress-track { height:9px; margin-top:20px; border-radius:99px; overflow:hidden; background:var(--menu-border,#ddd); }
+          #istighosah-dialog .reload-progress-fill { width:0; height:100%; border-radius:inherit; background:var(--control-accent,#2457c5); transition:width .2s ease; }
+          #istighosah-dialog .reload-progress-meta { display:flex; justify-content:space-between; gap:12px; margin-top:9px; color:var(--menu-muted,#666); font:12px Arial,sans-serif; }
+          #istighosah-dialog .reload-progress-meta strong { color:var(--menu-fg,#222); }
+          #istighosah-dialog .reload-progress-hint { margin:18px 0 0; color:var(--menu-muted,#777); font:11px/1.45 Arial,sans-serif; }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(overlay);
+
+      let completed = false;
+      let succeeded = false;
+      overlay.addEventListener('click', event => {
+        if (event.target !== overlay || !completed) return;
+        overlay.remove();
+        if (succeeded) location.reload();
+      });
+
+      return {
+        update(data) {
+          const total = Number(data.total) || 0;
+          const current = Number(data.current) || 0;
+          const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
+          overlay.querySelector('.reload-progress-title').textContent = 'Reload Data sedang berlangsung…';
+          overlay.querySelector('.reload-progress-detail').textContent = data.path
+            ? `Mengunduh: ${data.path}`
+            : (data.message || 'Mengambil data dari server…');
+          overlay.querySelector('.reload-progress-count').textContent = `${current} dari ${total} file`;
+          overlay.querySelector('.reload-progress-percent').textContent = `${percent}%`;
+          overlay.querySelector('.reload-progress-fill').style.width = `${percent}%`;
+        },
+        finish(ok, message) {
+          completed = true;
+          succeeded = Boolean(ok);
+          overlay.querySelector('.reload-progress-title').textContent = ok
+            ? 'Reload Data berhasil'
+            : 'Reload Data gagal';
+          overlay.querySelector('.reload-progress-detail').textContent = message
+            || (ok ? 'Semua data berhasil dimuat.' : 'Terjadi kesalahan saat mengambil data.');
+          overlay.querySelector('.reload-progress-count').textContent = ok ? 'Selesai' : 'Proses dihentikan';
+          overlay.querySelector('.reload-progress-percent').textContent = ok ? '100%' : 'Gagal';
+          if (ok) overlay.querySelector('.reload-progress-fill').style.width = '100%';
+          overlay.querySelector('.reload-progress-hint').textContent = 'Klik area di luar kotak ini untuk menutup. Tampilan aplikasi akan dimuat ulang jika proses berhasil.';
+        }
+      };
+    }
+
     async function reloadData() {
       // Periksa koneksi sebelum konfirmasi dan sebelum menghubungi Service Worker.
-      // Saat offline, cukup beri tahu pengguna lalu hentikan tanpa mengubah cache.
       if (!navigator.onLine) {
         showNotice('Reload Data tidak dapat dilanjutkan karena perangkat sedang offline.');
         return;
@@ -768,13 +836,24 @@
         return;
       }
 
+      const progress = showReloadProgress();
       const channel = new MessageChannel();
-      const timeout = setTimeout(() => showNotice('Proses Reload Data belum memberikan respons. Periksa koneksi internet.'), 30000);
+      const timeout = setTimeout(() => {
+        progress.finish(false, 'Proses tidak memberikan respons. Periksa koneksi internet.');
+        channel.port1.close();
+      }, 180000);
+
       channel.port1.onmessage = event => {
+        const data = event.data || {};
+        if (data.progress) {
+          progress.update(data);
+          return;
+        }
         clearTimeout(timeout);
-        if (event.data?.ok) location.reload();
-        else showNotice('Reload Data gagal. Cache lama telah dihapus. Sambungkan perangkat ke internet lalu muat ulang aplikasi.');
+        progress.finish(Boolean(data.ok), data.message);
+        channel.port1.close();
       };
+
       worker.postMessage({ type: 'RELOAD_DATA' }, [channel.port2]);
     }
 
