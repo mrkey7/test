@@ -359,6 +359,8 @@ html:not([data-theme="gelap"]) .heading-logo {
     background: var(--menu-bg);
     box-shadow: 0 3px 12px #0003;
   }
+  .settings-choice--cascade:hover,
+  .settings-choice--cascade:focus-within { z-index: 45; }
   .settings-choice--cascade:hover > .settings-choice__submenu,
   .settings-choice--cascade:focus-within > .settings-choice__submenu { display: block; }
   .settings-choice__item {
