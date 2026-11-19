@@ -101,6 +101,8 @@ self.addEventListener('message', event => {
   event.waitUntil((async () => {
     let stagingName = '';
     let activated = false;
+    const controller = new AbortController();
+    const reloadTimeout = setTimeout(() => controller.abort(), 170000);
     try {
       const previousName = await getActiveCacheName();
       stagingName = `${CACHE_PREFIX}stage-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -112,7 +114,7 @@ self.addEventListener('message', event => {
         const url = new URL(path, self.registration.scope).href;
         port?.postMessage({ progress: true, current, total, path, message: 'Mengambil data dari server…' });
 
-        const response = await fetch(new Request(url, { cache: 'no-store' }));
+        const response = await fetch(new Request(url, { cache: 'no-store', signal: controller.signal }));
         if (!response.ok) throw new Error(`Unduhan gagal: ${path} (${response.status})`);
 
         await staging.put(url, response);
@@ -140,8 +142,10 @@ self.addEventListener('message', event => {
         console.warn('Cache lama belum berhasil dibersihkan:', cleanupError);
       }
 
+      clearTimeout(reloadTimeout);
       port?.postMessage({ ok: true, message: `Berhasil memuat ${current} file.` });
     } catch (error) {
+      clearTimeout(reloadTimeout);
       if (stagingName && !activated) await caches.delete(stagingName);
       console.error('Reload Data gagal:', error);
       port?.postMessage({ ok: false, message: 'Reload Data gagal. Cache lama tetap digunakan.' });
