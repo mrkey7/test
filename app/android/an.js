@@ -161,6 +161,32 @@
   }
 
 
+  function setupAndroidViewToggle(menuPanel) {
+    if (window.parent === window || typeof window.parent.exitAndroidView !== 'function') return;
+    if (menuPanel.querySelector('[data-setting-id="androidView"]')) return;
+
+    const group = document.createElement('label');
+    group.className = 'settings-toggle';
+    group.dataset.settingId = 'androidView';
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = true;
+    input.setAttribute('aria-label', 'Android View');
+
+    const text = document.createElement('span');
+    text.textContent = 'Android View';
+    group.append(input, text);
+    menuPanel.insertBefore(group, menuPanel.firstChild);
+
+    input.addEventListener('change', () => {
+      if (!input.checked) {
+        closeWholeMenu();
+        window.parent.exitAndroidView();
+      }
+    });
+  }
+
   function setupAndroidInstall(menuPanel) {
     if (menuPanel.querySelector('[data-setting-id="android-install"]')) return;
 
@@ -303,6 +329,7 @@
     setupAndroidGestureToggle(menuPanel);
     setupAndroidHelp(menuPanel);
     setupAndroidInstall(menuPanel);
+    setupAndroidViewToggle(menuPanel);
   }
 
   const trigger = document.querySelector('.menu-trigger');
