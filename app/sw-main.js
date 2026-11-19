@@ -114,7 +114,6 @@ self.addEventListener('message', event => {
       stagingName = `${CACHE_PREFIX}stage-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const staging = await caches.open(stagingName);
       const total = urls.length;
-      const ignoredTotal = urls.filter(path => path.includes('/aset/')).length;
       let current = 0;
       let downloaded = 0;
       let ignored = 0;
