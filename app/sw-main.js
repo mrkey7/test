@@ -3,31 +3,35 @@ const CACHE_PREFIX = 'istighosah-static-';
 const META_CACHE = 'istighosah-cache-meta-v1';
 const ACTIVE_CACHE_KEY = new URL('__istighosah_cache__/active', self.registration?.scope || self.location.href).href;
 
-const PRECACHE_URLS = [
-  './index.html',
-  './app/manifest.webmanifest',
-  './app/android/an.html',
-  './app/android/an.css',
-  './app/android/an.js',
-  './app/pc/pc.html',
-  './app/pc/pc.css',
-  './app/pc/pc.js',
-  './app/global/rules.js',
-  './app/global/rules.json',
-  './app/global/aset/naskah.json',
-  './app/global/aset/basmalah.png',
-  './app/global/aset/hasyim-asyari.png',
-  './app/global/aset/logo.png',
-  './app/global/aset/hasyim-asyari-128.png',
-  './app/global/aset/font/TraditionalArabic-Regular.woff2',
-  './app/global/aset/font/TraditionalArabic-Bold.woff2',
-  './app/global/aset/font/Amiri-Bold.woff2',
-  './app/global/aset/font/Amiri-Regular.woff2',
-  './app/global/aset/font/NotoNaskhArabic-Bold.woff2',
-  './app/global/aset/font/NotoNaskhArabic-Regular.woff2',
-  './app/global/aset/font/NotoSansArabic-Bold.woff2',
-  './app/global/aset/font/NotoSansArabic-Regular.woff2',
-];
+const GITHUB_TREE_URL = 'https://api.github.com/repos/mrkey7/test/git/trees/main?recursive=1';
+
+// Daftar cache diambil dari seluruh file dalam app/ dan index.html di root.
+async function getPrecacheUrls(signal) {
+  const response = await fetch(GITHUB_TREE_URL, {
+    cache: 'no-store',
+    signal
+  });
+  if (!response.ok) {
+    throw new Error(`Gagal mengambil daftar file GitHub (${response.status}).`);
+  }
+
+  const data = await response.json();
+  if (data.truncated || !Array.isArray(data.tree)) {
+    throw new Error('Daftar file GitHub tidak lengkap.');
+  }
+
+  const paths = data.tree
+    .filter(item => item.type === 'blob' && (
+      item.path.startsWith('app/') || item.path === 'index.html'
+    ))
+    .map(item => item.path);
+
+  if (!paths.includes('index.html') || !paths.some(path => path.startsWith('app/'))) {
+    throw new Error('Daftar file app/ atau index.html tidak ditemukan.');
+  }
+
+  return paths;
+}
 
 async function getActiveCacheName() {
   const meta = await caches.open(META_CACHE);
@@ -51,8 +55,9 @@ self.addEventListener('install', event => {
     const keys = await caches.keys();
     const hasExistingData = keys.some(key => key.startsWith(CACHE_PREFIX));
     if (!hasExistingData) {
+      const urls = await getPrecacheUrls();
       const cache = await caches.open(CACHE_NAME);
-      await cache.addAll(PRECACHE_URLS);
+      await cache.addAll(urls);
     }
     await self.skipWaiting();
   })());
@@ -105,11 +110,11 @@ self.addEventListener('message', event => {
     const reloadTimeout = setTimeout(() => controller.abort(), 170000);
     try {
       const previousName = await getActiveCacheName();
+      const urls = await getPrecacheUrls(controller.signal);
       stagingName = `${CACHE_PREFIX}stage-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const staging = await caches.open(stagingName);
-      const total = PRECACHE_URLS.length;
-      const ignoredTotal = PRECACHE_URLS.filter(path => path.includes('/aset/')).length;
-      const downloadTotal = total - ignoredTotal;
+      const total = urls.length;
+      const ignoredTotal = urls.filter(path => path.includes('/aset/')).length;
       let current = 0;
       let downloaded = 0;
       let ignored = 0;
@@ -117,7 +122,7 @@ self.addEventListener('message', event => {
       const previous = await caches.open(previousName);
       port?.postMessage({ progress: true, current, total, downloaded, ignored, path: '', message: 'Menyiapkan daftar file…' });
 
-      for (const path of PRECACHE_URLS) {
+      for (const path of urls) {
         const url = new URL(path, self.registration.scope).href;
         const isAsset = path.includes('/aset/');
 
@@ -146,7 +151,7 @@ self.addEventListener('message', event => {
       }
 
       // Pastikan seluruh daftar benar-benar tersedia sebelum mengganti cache aktif.
-      for (const path of PRECACHE_URLS) {
+      for (const path of urls) {
         const url = new URL(path, self.registration.scope).href;
         if (!(await staging.match(url))) throw new Error(`Verifikasi cache gagal: ${path}`);
       }
