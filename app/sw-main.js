@@ -156,43 +156,31 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  const isFont = /\/global\/aset\/font\/[^/]+\.woff2$/i.test(url.pathname);
-
-  if (isFont) {
-    event.respondWith((async () => {
-      const cache = await caches.open(await getActiveCacheName());
-      const cached = await cache.match(request);
-      if (cached) return cached;
-      try {
-        const response = await fetch(new Request(request, { cache: 'no-store' }));
-        if (response.ok) await cache.put(request, response.clone());
-        return response;
-      } catch {
-        return new Response('Font tidak tersedia di cache.', { status: 504 });
-      }
-    })());
-    return;
-  }
-
   event.respondWith((async () => {
     const cache = await caches.open(await getActiveCacheName());
-    try {
-      const response = await fetch(new Request(request, { cache: 'no-store' }));
-      if (response.ok) await cache.put(request, response.clone());
-      return response;
-    } catch {
-      const cached = await cache.match(request);
-      if (cached) return cached;
-      if (request.mode === 'navigate') {
-        const home = new URL('./index.html', self.registration.scope).href;
-        const fallback = await cache.match(home);
-        if (fallback) return fallback;
-      }
-      return Response.error();
+
+    // Operasional normal selalu membaca cache; jaringan hanya dipakai oleh Reload Data.
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    // Abaikan query string jika aset yang sama tersimpan tanpa query.
+    url.search = '';
+    url.hash = '';
+    const cachedWithoutQuery = await cache.match(url.href);
+    if (cachedWithoutQuery) return cachedWithoutQuery;
+
+    if (request.mode === 'navigate') {
+      const home = new URL('./index.html', self.registration.scope).href;
+      const fallback = await cache.match(home);
+      if (fallback) return fallback;
     }
+
+    return new Response('File tidak tersedia di cache offline.', {
+      status: 504,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+    });
   })());
 });
-
 self.addEventListener('message', event => {
   if (event.data?.type !== 'RELOAD_DATA') return;
   const port = event.ports?.[0];
