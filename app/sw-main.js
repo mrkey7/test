@@ -1,4 +1,4 @@
-// Update marker: reload skipExtensions support
+// Update marker: reload skipExtensions diagnostics
 const CACHE_NAME = 'istighosah-static-v22';
 const CACHE_PREFIX = 'istighosah-static-';
 const META_CACHE = 'istighosah-cache-meta-v1';
