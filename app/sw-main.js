@@ -90,7 +90,7 @@ self.addEventListener('fetch', event => {
     if (request.mode === 'navigate') {
       const scopeUrl = new URL(self.registration.scope);
       const isRootNavigation =
-        url.pathname.replace(/\\/$/, '') === scopeUrl.pathname.replace(/\\/$/, '');
+        url.pathname.replace(/\/$/, '') === scopeUrl.pathname.replace(/\/$/, '');
       if (isRootNavigation) {
         const indexUrl = new URL('./index.html', self.registration.scope).href;
         const cachedIndex = await cache.match(indexUrl);
