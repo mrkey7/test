@@ -411,6 +411,8 @@
   }
 
   function showDialog(message, confirmMode = false, variant = '') {
+    const choices = Array.isArray(confirmMode) ? confirmMode : null;
+    const isConfirm = choices ? false : confirmMode;
     return new Promise(resolve => {
       document.getElementById('istighosah-dialog')?.remove();
 
@@ -480,7 +482,9 @@
         <section class="dialog-card" role="dialog" aria-modal="true">
           <p class="dialog-message"></p>
           <div class="dialog-actions">
-            <button type="button" class="dialog-primary" data-result="true">${confirmMode ? 'Lanjutkan' : 'OK'}</button>
+            ${choices
+              ? choices.map((choice, index) => `<button type="button" class="${index === choices.length - 1 ? 'dialog-primary' : ''}" data-choice="${String(choice.value)}">${choice.label}</button>`).join('')
+              : `<button type="button" class="dialog-primary" data-result="true">${isConfirm ? 'Lanjutkan' : 'OK'}</button>`}
           </div>
         </section>`;
       overlay.querySelector('.dialog-message').textContent = message;
@@ -490,13 +494,16 @@
         resolve(value);
       };
       overlay.querySelectorAll('button').forEach(button => {
-        button.addEventListener('click', () => finish(button.dataset.result === 'true'));
+        button.addEventListener('click', () => {
+          if (choices) finish(button.dataset.choice);
+          else finish(button.dataset.result === 'true');
+        });
       });
       overlay.addEventListener('click', event => {
-        if (event.target === overlay) finish(!confirmMode);
+        if (event.target === overlay) finish(choices ? null : !isConfirm);
       });
       document.body.appendChild(overlay);
-      overlay.querySelector('.dialog-primary').focus();
+      overlay.querySelector('button')?.focus();
     });
   }
 
