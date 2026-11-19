@@ -2,7 +2,7 @@
   "reloadDataDetailed": true,
   "settingInfo": {
     "nama": "",
-    "keterangan": "Mengambil ulang seluruh data dari server"
+    "keterangan": "Memeriksa dan memperbarui data aplikasi dari server"
   },
   "skipFolders": [
     "app/global/aset/",
