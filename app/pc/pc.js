@@ -179,6 +179,135 @@
     window.exitAndroidView = () => setAndroidView(false);
   }
 
+  function setupPCShortcuts(panel) {
+    if (panel.querySelector('.settings-shortcut')) return;
+
+    const group = document.createElement('div');
+    group.className = 'settings-choice settings-choice--cascade settings-shortcut';
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'settings-choice__trigger';
+    trigger.textContent = 'Shortcut  ›';
+    trigger.setAttribute('aria-haspopup', 'true');
+    trigger.setAttribute('aria-label', 'Shortcut');
+
+    const submenu = document.createElement('div');
+    submenu.className = 'settings-choice__submenu';
+    submenu.setAttribute('role', 'menu');
+
+    [
+      'Menu: klik dua kali cepat (≤ 300 ms)',
+      'Tatwil: klik dua kali dengan jeda (300–900 ms)',
+      'Ukuran Font: Shift + scroll mouse'
+    ].forEach(description => {
+      const item = document.createElement('div');
+      item.className = 'settings-choice__item';
+      item.textContent = description;
+      item.setAttribute('role', 'note');
+      item.style.cursor = 'default';
+      item.style.whiteSpace = 'normal';
+      item.style.maxWidth = '260px';
+      submenu.appendChild(item);
+    });
+
+    group.append(trigger, submenu);
+    const advanced = panel.querySelector('.settings-advanced');
+    panel.insertBefore(group, advanced || panel.firstChild);
+
+    let lastClick = 0;
+    let clickTimer = null;
+    let popupTimer = null;
+
+    function showShortcutNotice(message) {
+      let popup = document.getElementById('pc-shortcut-popup');
+      if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'pc-shortcut-popup';
+        Object.assign(popup.style, {
+          position: 'fixed', left: '50%', top: '50%',
+          transform: 'translate(-50%, -50%)', zIndex: '99999',
+          padding: '9px 15px', borderRadius: '8px',
+          background: 'var(--menu-bg)', color: 'var(--menu-fg)',
+          border: '1px solid var(--menu-border)',
+          boxShadow: '0 3px 14px #0004',
+          font: '600 15px Arial, sans-serif',
+          pointerEvents: 'none', opacity: '0',
+          transition: 'opacity .12s ease'
+        });
+        document.body.appendChild(popup);
+      }
+      popup.textContent = message;
+      popup.style.opacity = '1';
+      clearTimeout(popupTimer);
+      popupTimer = setTimeout(() => { popup.style.opacity = '0'; }, 850);
+    }
+
+    function toggleTatweel() {
+      const input = panel.querySelector('[data-setting-id="tatweel"] input[type="checkbox"]');
+      if (!input) return;
+      input.checked = !input.checked;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      showShortcutNotice(`Tatwil ${input.checked ? 'On' : 'Off'}`);
+    }
+
+    document.addEventListener('click', event => {
+      const target = event.target instanceof Element ? event.target : event.target.parentElement;
+      if (!target?.closest('.frame') || target.closest('.menu')) {
+        lastClick = 0;
+        clearTimeout(clickTimer);
+        return;
+      }
+
+      const now = Date.now();
+      if (!lastClick) {
+        lastClick = now;
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { lastClick = 0; }, 900);
+        return;
+      }
+
+      const elapsed = now - lastClick;
+      lastClick = 0;
+      clearTimeout(clickTimer);
+
+      if (elapsed <= 300) {
+        event.preventDefault();
+        event.stopPropagation();
+        panel.hidden = false;
+        document.querySelector('.menu-trigger')?.setAttribute('aria-expanded', 'true');
+      } else if (elapsed <= 900) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleTatweel();
+      }
+    }, true);
+
+    document.addEventListener('dblclick', event => {
+      const target = event.target instanceof Element ? event.target : event.target.parentElement;
+      if (target?.closest('.frame') && !target.closest('.menu')) event.preventDefault();
+    }, true);
+
+    document.addEventListener('wheel', event => {
+      if (!event.shiftKey || !event.deltaY) return;
+      const target = event.target instanceof Element ? event.target : event.target.parentElement;
+      if (!target?.closest('.frame') || target.closest('.menu')) return;
+
+      const input = panel.querySelector('[data-setting-id="ukuranHuruf"] input[type="range"]');
+      if (!input) return;
+      event.preventDefault();
+      const step = Number(input.step) || 1;
+      const direction = event.deltaY < 0 ? 1 : -1;
+      const next = Math.min(Number(input.max), Math.max(Number(input.min),
+        Number(input.value) + direction * step * 2));
+      if (next !== Number(input.value)) {
+        input.value = String(next);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      showShortcutNotice(`Ukuran Font: ${input.value}%`);
+    }, { capture: true, passive: false });
+  }
+
   async function init() {
     const response = await fetch('../global/aset/naskah.json');
     if (!response.ok) throw new Error(`Naskah gagal dimuat (${response.status})`);
@@ -205,6 +334,7 @@
       readings: target
     });
 
+    setupPCShortcuts(menuPanel);
     initAndroidViewMenu(menuPanel);
   }
 
