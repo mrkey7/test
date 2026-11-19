@@ -410,7 +410,7 @@
     return button;
   }
 
-  function showDialog(message, confirmMode = false) {
+  function showDialog(message, confirmMode = false, variant = '') {
     return new Promise(resolve => {
       document.getElementById('istighosah-dialog')?.remove();
 
@@ -449,6 +449,12 @@
             border-color: var(--control-accent, #2457c5);
             background: var(--control-accent, #2457c5); color: #fff;
           }
+          #istighosah-dialog.dialog-offline .dialog-card {
+            border-left: 5px solid #dc2626;
+          }
+          #istighosah-dialog.dialog-offline button.dialog-primary {
+            border-color: #dc2626; background: #dc2626;
+          }
           @keyframes istighosah-dialog-in {
             from { opacity: 0; transform: translateY(7px) scale(.98); }
             to { opacity: 1; transform: none; }
@@ -462,6 +468,7 @@
 
       const overlay = document.createElement('div');
       overlay.id = 'istighosah-dialog';
+      if (variant === 'offline') overlay.classList.add('dialog-offline');
       overlay.innerHTML = `
         <section class="dialog-card" role="dialog" aria-modal="true">
           <p class="dialog-message"></p>
@@ -486,8 +493,8 @@
     });
   }
 
-  function showNotice(message) {
-    return showDialog(message);
+  function showNotice(message, variant = '') {
+    return showDialog(message, false, variant);
   }
 
   async function init({ panel, readings }) {
@@ -840,7 +847,7 @@
     async function reloadData() {
       // Periksa koneksi sebelum konfirmasi dan sebelum menghubungi Service Worker.
       if (!navigator.onLine) {
-        showNotice('Reload Data tidak dapat dilanjutkan karena perangkat sedang offline.');
+        showNotice('Reload Data tidak dapat dilanjutkan karena perangkat sedang offline.', 'offline');
         return;
       }
 
