@@ -676,13 +676,22 @@
     }
 
     async function reloadData() {
-      if (!window.confirm('Reload Data akan menghapus cache lama dan mengambil seluruh data langsung dari server. Jika sedang offline, aplikasi tidak dapat digunakan sampai data berhasil dimuat kembali. Lanjutkan?')) return;
+      // Periksa koneksi sebelum konfirmasi dan sebelum menghubungi Service Worker.
+      // Saat offline, cukup beri tahu pengguna lalu hentikan tanpa mengubah cache.
+      if (!navigator.onLine) {
+        showNotice('Reload Data tidak dapat dilanjutkan karena perangkat sedang offline.');
+        return;
+      }
+
+      if (!window.confirm('Reload Data akan menghapus cache lama dan mengambil seluruh data langsung dari server. Lanjutkan?')) return;
+
       const registration = await navigator.serviceWorker?.getRegistration('../');
       const worker = navigator.serviceWorker?.controller || registration?.active;
       if (!worker) {
         showNotice('Service Worker belum aktif. Reload Data tidak dapat dijalankan.');
         return;
       }
+
       const channel = new MessageChannel();
       const timeout = setTimeout(() => showNotice('Proses Reload Data belum memberikan respons. Periksa koneksi internet.'), 30000);
       channel.port1.onmessage = event => {
