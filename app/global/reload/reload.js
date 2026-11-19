@@ -4,14 +4,18 @@
     if (!response.ok) throw new Error(`Konfigurasi Reload Data gagal dimuat (${response.status})`);
     const config = await response.json();
 
-    const reloadButton = createAction(panel, 'Reload Data', 'reloadData', reloadData);
     const info = config.settingInfo || {};
-    if (info.nama || info.keterangan) {
-      reloadButton.dataset.tooltip = `${info.nama ? info.nama + ' — ' : ''}${info.keterangan || ''}`.trim();
-      reloadButton.setAttribute('aria-label', reloadButton.dataset.tooltip);
+    const tooltip = `${info.nama ? info.nama + ' — ' : ''}${info.keterangan || ''}`.trim();
+    const neededButton = createAction(panel, 'Hanya file yang dibutuhkan', 'reloadNeeded', () => reloadData('needed'));
+    const allButton = createAction(panel, 'Semua file', 'reloadAll', () => reloadData('all'));
+    for (const button of [neededButton, allButton]) {
+      if (tooltip) {
+        button.dataset.tooltip = tooltip;
+        button.setAttribute('aria-label', tooltip);
+      }
     }
 
-    function showReloadProgress(detailed = false) {
+    function showReloadProgress(detailed = false, mode = 'needed') {
       document.getElementById('istighosah-dialog')?.remove();
 
       const overlay = document.createElement('div');
@@ -70,7 +74,7 @@
           const total = Number(data.total) || 0;
           const current = Number(data.current) || 0;
           const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
-          overlay.querySelector('.reload-progress-title').textContent = 'Reload Data sedang berlangsung';
+          overlay.querySelector('.reload-progress-title').textContent = mode === 'all' ? 'Mengunduh semua file' : 'Memeriksa file yang dibutuhkan';
           overlay.querySelector('.reload-progress-status').textContent = `${percent}%`;
           overlay.querySelector('.reload-progress-fill').style.width = `${percent}%`;
           overlay.querySelector('.reload-progress-counts').textContent =
@@ -108,14 +112,15 @@
       };
     }
 
-    async function reloadData() {
+    async function reloadData(mode = 'needed') {
       // Periksa koneksi sebelum konfirmasi dan sebelum menghubungi Service Worker.
       if (!navigator.onLine) {
         showNotice('Reload Data tidak dapat dilanjutkan karena perangkat sedang offline.', 'offline');
         return;
       }
 
-      if (!await showDialog('Reload Data akan mengambil seluruh data dari server. Cache lama tetap aman jika proses gagal. Lanjutkan?', true)) return;
+      const confirmText = mode === 'all' ? 'Semua file akan diunduh ulang dari server. Cache lama tetap aman jika proses gagal. Lanjutkan?' : 'Hanya file baru atau berubah yang akan diunduh. File lain tetap menggunakan cache lokal. Lanjutkan?';
+      if (!await showDialog(confirmText, true)) return;
 
       const registration = await navigator.serviceWorker?.getRegistration('../');
       const worker = navigator.serviceWorker?.controller || registration?.active;
@@ -124,7 +129,7 @@
         return;
       }
 
-      const progress = showReloadProgress(config.reloadDataDetailed === true);
+      const progress = showReloadProgress(config.reloadDataDetailed === true, mode);
       const channel = new MessageChannel();
       const timeout = setTimeout(() => {
         progress.finish(false);
@@ -158,7 +163,7 @@
         channel.port1.close();
       };
 
-      worker.postMessage({ type: 'RELOAD_DATA' }, [channel.port2]);
+      worker.postMessage({ type: 'RELOAD_DATA', mode }, [channel.port2]);
     }
 
   }
