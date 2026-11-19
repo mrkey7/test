@@ -22,6 +22,7 @@ self.addEventListener('message', event => {
       // Konfigurasi skip folder dibaca dari server hanya saat Reload Data dipanggil.
       // Recovery penuh selalu mengabaikan seluruh aturan skip.
       let skipFolders = [];
+      let skipExtensions = [];
       if (!forceFull) {
         const configUrl = new URL('./app/global/reload/reload.json', self.registration.scope).href;
         const configResponse = await fetch(new Request(configUrl, {
@@ -31,13 +32,24 @@ self.addEventListener('message', event => {
         if (!configResponse.ok) throw new Error(`Konfigurasi Reload Data gagal dimuat (${configResponse.status}).`);
         const config = await configResponse.json();
         if (Array.isArray(config.skipFolders)) skipFolders = config.skipFolders;
+        if (Array.isArray(config.skipExtensions)) skipExtensions = config.skipExtensions;
       }
 
-      function isSkippedFolder(path) {
-        const normalizedPath = String(path).split('/').filter(Boolean).join('/');
-        return skipFolders.some(value => {
-          const folder = String(value || '').split('/').filter(Boolean).join('/');
+      function isSkippedPath(path) {
+        const normalizedPath = String(path).split('/').filter(Boolean).join('/').toLowerCase();
+
+        // Folder memiliki prioritas lebih tinggi daripada ekstensi.
+        const inSkippedFolder = skipFolders.some(value => {
+          const folder = String(value || '').split('/').filter(Boolean).join('/').toLowerCase();
           return folder && (normalizedPath === folder || normalizedPath.startsWith(folder + '/'));
+        });
+        if (inSkippedFolder) return true;
+
+        return skipExtensions.some(value => {
+          let extension = String(value || '').trim().toLowerCase();
+          if (!extension) return false;
+          if (!extension.startsWith('.')) extension = '.' + extension;
+          return normalizedPath.endsWith(extension);
         });
       }
 
@@ -52,7 +64,7 @@ self.addEventListener('message', event => {
 
       for (const path of urls) {
         const url = new URL(path, self.registration.scope).href;
-        const shouldSkip = !forceFull && hasPreviousCache && isSkippedFolder(path);
+        const shouldSkip = !forceFull && hasPreviousCache && isSkippedPath(path);
 
         // Skip hanya menggunakan cache lama jika file yang dimaksud benar-benar ada.
         // Cache lama yang hilang atau file yang tidak ada tetap akan diunduh.
