@@ -718,6 +718,38 @@
       writeSettings({ jarakBlok, ukuranHuruf, jarakBaris, harakat, jenisHuruf, tebal, tema, selangSeling });
     }
 
+    function showHomeTransition() {
+      const overlay = document.createElement('div');
+      overlay.className = 'istighosah-home-transition';
+      overlay.innerHTML = '<img alt="" src="../global/aset/logo.png">';
+      if (!document.getElementById('istighosah-home-transition-style')) {
+        const style = document.createElement('style');
+        style.id = 'istighosah-home-transition-style';
+        style.textContent = `
+          .istighosah-home-transition {
+            position:fixed; inset:0; z-index:100001; display:grid; place-items:center;
+            background:rgba(12,18,30,.52); backdrop-filter:blur(9px);
+            -webkit-backdrop-filter:blur(9px); overflow:hidden;
+          }
+          .istighosah-home-transition img {
+            width:min(34vw,150px); max-height:30vh; object-fit:contain;
+            animation:istighosah-logo-zoom .85s cubic-bezier(.2,.75,.25,1) forwards;
+          }
+          @keyframes istighosah-logo-zoom {
+            0% { opacity:0; transform:scale(.55); }
+            22% { opacity:1; transform:scale(1); }
+            100% { opacity:0; transform:scale(18); }
+          }
+          @media(prefers-reduced-motion:reduce) {
+            .istighosah-home-transition img { animation-duration:.15s; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      document.body.appendChild(overlay);
+      setTimeout(() => location.reload(), 850);
+    }
+
     async function resetDefaults() {
       if (!await showDialog('Reset Setting akan mengembalikan seluruh pengaturan ke nilai bawaan. Lanjutkan?', true)) return;
       jarakBlok = config.jarakBlok.default;
@@ -749,6 +781,7 @@
       save();
       try { sessionStorage.removeItem('istighosah-advanced-open-v1'); } catch {}
       updateAdvancedVisibility(false);
+      showHomeTransition();
     }
 
     function showReloadProgress() {
@@ -758,37 +791,32 @@
       overlay.id = 'istighosah-dialog';
       overlay.innerHTML = `
         <section class="dialog-card reload-progress-card" role="dialog" aria-modal="true" aria-live="polite">
-          <p class="dialog-message reload-progress-title">Menyiapkan Reload Data…</p>
-          <p class="reload-progress-detail">Mohon tunggu, jangan tutup panel ini.</p>
+          <p class="dialog-message reload-progress-title">Reload Data sedang berlangsung</p>
           <div class="reload-progress-track"><div class="reload-progress-fill"></div></div>
-          <div class="reload-progress-meta"><span class="reload-progress-count">0 dari 0 file</span><strong class="reload-progress-percent">0%</strong></div>
-          <p class="reload-progress-hint">Panel ini akan tetap tampil sampai Anda mengeklik area di luarnya setelah proses selesai.</p>
+          <div class="reload-progress-meta"><strong class="reload-progress-status">0%</strong></div>
+          <button type="button" class="dialog-primary reload-return" disabled>Kembali ke halaman utama</button>
         </section>`;
 
       if (!document.getElementById('istighosah-reload-progress-style')) {
         const style = document.createElement('style');
         style.id = 'istighosah-reload-progress-style';
         style.textContent = `
-          #istighosah-dialog .reload-progress-card { width:min(100%,420px); }
-          #istighosah-dialog .reload-progress-title { font-weight:700; margin-bottom:7px; }
-          #istighosah-dialog .reload-progress-detail { margin:0; color:var(--menu-muted,#666); font:13px/1.5 Arial,sans-serif; overflow-wrap:anywhere; }
-          #istighosah-dialog .reload-progress-track { height:9px; margin-top:20px; border-radius:99px; overflow:hidden; background:var(--menu-border,#ddd); }
+          #istighosah-dialog .reload-progress-card { width:min(100%,390px); }
+          #istighosah-dialog .reload-progress-title { margin:0; font-weight:700; text-align:center; }
+          #istighosah-dialog .reload-progress-track { height:9px; margin-top:22px; border-radius:99px; overflow:hidden; background:var(--menu-border,#ddd); }
           #istighosah-dialog .reload-progress-fill { width:0; height:100%; border-radius:inherit; background:var(--control-accent,#2457c5); transition:width .2s ease; }
-          #istighosah-dialog .reload-progress-meta { display:flex; justify-content:space-between; gap:12px; margin-top:9px; color:var(--menu-muted,#666); font:12px Arial,sans-serif; }
-          #istighosah-dialog .reload-progress-meta strong { color:var(--menu-fg,#222); }
-          #istighosah-dialog .reload-progress-hint { margin:18px 0 0; color:var(--menu-muted,#777); font:11px/1.45 Arial,sans-serif; }
+          #istighosah-dialog .reload-progress-meta { display:flex; justify-content:center; margin-top:10px; color:var(--menu-fg,#222); font:700 13px Arial,sans-serif; }
+          #istighosah-dialog .reload-return { display:block; width:100%; margin-top:22px; }
+          #istighosah-dialog .reload-return:disabled { opacity:.45; cursor:default; }
         `;
         document.head.appendChild(style);
       }
 
       document.body.appendChild(overlay);
-
-      let completed = false;
-      let succeeded = false;
-      overlay.addEventListener('click', event => {
-        if (event.target !== overlay || !completed) return;
+      const button = overlay.querySelector('.reload-return');
+      button.addEventListener('click', () => {
         overlay.remove();
-        if (succeeded) location.reload();
+        showHomeTransition();
       });
 
       return {
@@ -796,26 +824,15 @@
           const total = Number(data.total) || 0;
           const current = Number(data.current) || 0;
           const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
-          overlay.querySelector('.reload-progress-title').textContent = 'Reload Data sedang berlangsung…';
-          overlay.querySelector('.reload-progress-detail').textContent = data.path
-            ? `Mengunduh: ${data.path}`
-            : (data.message || 'Mengambil data dari server…');
-          overlay.querySelector('.reload-progress-count').textContent = `${current} dari ${total} file`;
-          overlay.querySelector('.reload-progress-percent').textContent = `${percent}%`;
+          overlay.querySelector('.reload-progress-title').textContent = 'Reload Data sedang berlangsung';
+          overlay.querySelector('.reload-progress-status').textContent = `${percent}%`;
           overlay.querySelector('.reload-progress-fill').style.width = `${percent}%`;
         },
-        finish(ok, message) {
-          completed = true;
-          succeeded = Boolean(ok);
-          overlay.querySelector('.reload-progress-title').textContent = ok
-            ? 'Reload Data berhasil'
-            : 'Reload Data gagal';
-          overlay.querySelector('.reload-progress-detail').textContent = message
-            || (ok ? 'Semua data berhasil dimuat.' : 'Terjadi kesalahan saat mengambil data.');
-          overlay.querySelector('.reload-progress-count').textContent = ok ? 'Selesai' : 'Proses dihentikan';
-          overlay.querySelector('.reload-progress-percent').textContent = ok ? '100%' : 'Gagal';
+        finish(ok) {
+          overlay.querySelector('.reload-progress-title').textContent = ok ? 'Reload Data berhasil' : 'Reload Data gagal';
+          overlay.querySelector('.reload-progress-status').textContent = ok ? '100%' : 'Gagal';
           if (ok) overlay.querySelector('.reload-progress-fill').style.width = '100%';
-          overlay.querySelector('.reload-progress-hint').textContent = 'Klik area di luar kotak ini untuk menutup. Tampilan aplikasi akan dimuat ulang jika proses berhasil.';
+          button.disabled = false;
         }
       };
     }
@@ -839,7 +856,7 @@
       const progress = showReloadProgress();
       const channel = new MessageChannel();
       const timeout = setTimeout(() => {
-        progress.finish(false, 'Proses tidak memberikan respons. Periksa koneksi internet.');
+        progress.finish(false);
         channel.port1.close();
       }, 180000);
 
@@ -850,7 +867,7 @@
           return;
         }
         clearTimeout(timeout);
-        progress.finish(Boolean(data.ok), data.message);
+        progress.finish(Boolean(data.ok));
         channel.port1.close();
       };
 
