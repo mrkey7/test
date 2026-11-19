@@ -35,14 +35,14 @@ self.addEventListener('message', event => {
       }
 
       function matchesSkipRule(path) {
-        const normalizedPath = String(path).replace(/\\/g, '/').replace(/^\\/+/, '');
+        const normalizedPath = String(path).replace(/^\/+/, '');
         const rules = Array.isArray(skipRules) ? skipRules : [];
 
         // Prioritas pertama: folder. Jika cocok, aturan lain tidak perlu diperiksa.
         const folderRule = rules.find(rule =>
           rule?.type === 'folder' &&
           (Array.isArray(rule.value) ? rule.value : [rule.value]).some(value => {
-            const folder = String(value || '').replace(/\\/g, '/').replace(/^\\/+|\\/+$/g, '');
+            const folder = String(value || '').replace(/^\/+|\/+$/g, '');
             return folder && (normalizedPath === folder || normalizedPath.startsWith(folder + '/'));
           })
         );
@@ -51,7 +51,7 @@ self.addEventListener('message', event => {
         const fileRule = rules.find(rule =>
           rule?.type === 'file' &&
           (Array.isArray(rule.value) ? rule.value : [rule.value]).some(value =>
-            String(value || '').replace(/\\/g, '/').replace(/^\\/+/, '') === normalizedPath
+            String(value || '').replace(/^\/+/, '') === normalizedPath
           )
         );
         if (fileRule) return true;
