@@ -436,19 +436,10 @@
           }
           #istighosah-dialog .dialog-message {
             margin: 0; font: 15px/1.55 Arial, sans-serif;
-            text-align: center; white-space: pre-line;
+            white-space: pre-line;
           }
           #istighosah-dialog .dialog-actions {
             display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px;
-          }
-          #istighosah-dialog .dialog-actions--choices {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(max-content, 1fr));
-            width: max-content; max-width: 100%;
-            margin-left: auto; margin-right: auto;
-          }
-          #istighosah-dialog .dialog-actions--choices button {
-            width: 100%; min-width: 0; white-space: nowrap;
           }
           #istighosah-dialog button {
             min-width: 76px; min-height: 38px; padding: 7px 15px;
@@ -490,7 +481,7 @@
       overlay.innerHTML = `
         <section class="dialog-card" role="dialog" aria-modal="true">
           <p class="dialog-message"></p>
-          <div class="dialog-actions${choices ? ' dialog-actions--choices' : ''}">
+          <div class="dialog-actions">
             ${choices
               ? choices.map((choice, index) => `<button type="button" class="${index === choices.length - 1 ? 'dialog-primary' : ''}" data-choice="${String(choice.value)}">${choice.label}</button>`).join('')
               : `<button type="button" class="dialog-primary" data-result="true">${isConfirm ? 'Lanjutkan' : 'OK'}</button>`}
