@@ -192,23 +192,53 @@
     trigger.setAttribute('aria-label', 'Shortcut');
 
     const submenu = document.createElement('div');
-    submenu.className = 'settings-choice__submenu';
-    submenu.setAttribute('role', 'menu');
+    submenu.className = 'settings-choice__submenu settings-shortcut-submenu';
+    submenu.setAttribute('role', 'group');
 
-    [
-      'Menu: klik dua kali cepat (≤ 300 ms)',
-      'Tatwil: klik dua kali dengan jeda (300–900 ms)',
-      'Ukuran Font: Shift + scroll mouse'
-    ].forEach(description => {
-      const item = document.createElement('div');
-      item.className = 'settings-choice__item';
-      item.textContent = description;
-      item.setAttribute('role', 'note');
-      item.style.cursor = 'default';
+    const defaults = { menu: false, tatweel: false, font: false };
+    const enabled = {};
+    const controls = {};
+
+    function addShortcut(id, title, description) {
+      let saved = false;
+      try { saved = localStorage.getItem(`istighosah-pc-shortcut-${id}`) === 'true'; } catch {}
+
+      const item = document.createElement('label');
+      item.className = 'settings-toggle settings-shortcut-option';
+      item.style.width = '100%';
+      item.style.minWidth = '230px';
+      item.style.padding = '8px 12px';
       item.style.whiteSpace = 'normal';
-      item.style.maxWidth = '260px';
+
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = saved;
+      input.setAttribute('aria-label', title);
+      const text = document.createElement('span');
+      text.textContent = title;
+      const detail = document.createElement('small');
+      detail.textContent = description;
+      detail.style.display = 'block';
+      detail.style.fontSize = '11px';
+      detail.style.opacity = '.7';
+      detail.style.marginTop = '3px';
+
+      const words = document.createElement('span');
+      words.append(text, detail);
+      item.append(input, words);
       submenu.appendChild(item);
-    });
+
+      enabled[id] = saved;
+      controls[id] = input;
+      input.addEventListener('change', () => {
+        enabled[id] = input.checked;
+        try { localStorage.setItem(`istighosah-pc-shortcut-${id}`, String(input.checked)); } catch {}
+      });
+    }
+
+    addShortcut('menu', 'Menu', 'Klik dua kali cepat (≤ 300 ms)');
+    addShortcut('tatweel', 'Tatwil', 'Klik dua kali dengan jeda (300–900 ms)');
+    addShortcut('font', 'Ukuran Font', 'Shift + scroll mouse');
 
     group.append(trigger, submenu);
     const advanced = panel.querySelector('.settings-advanced');
@@ -270,12 +300,12 @@
       lastClick = 0;
       clearTimeout(clickTimer);
 
-      if (elapsed <= 300) {
+      if (elapsed <= 300 && enabled.menu) {
         event.preventDefault();
         event.stopPropagation();
         panel.hidden = false;
         document.querySelector('.menu-trigger')?.setAttribute('aria-expanded', 'true');
-      } else if (elapsed <= 900) {
+      } else if (elapsed > 300 && elapsed <= 900 && enabled.tatweel) {
         event.preventDefault();
         event.stopPropagation();
         toggleTatweel();
@@ -284,11 +314,12 @@
 
     document.addEventListener('dblclick', event => {
       const target = event.target instanceof Element ? event.target : event.target.parentElement;
-      if (target?.closest('.frame') && !target.closest('.menu')) event.preventDefault();
+      if (target?.closest('.frame') && !target.closest('.menu')
+          && (enabled.menu || enabled.tatweel)) event.preventDefault();
     }, true);
 
     document.addEventListener('wheel', event => {
-      if (!event.shiftKey || !event.deltaY) return;
+      if (!enabled.font || !event.shiftKey || !event.deltaY) return;
       const target = event.target instanceof Element ? event.target : event.target.parentElement;
       if (!target?.closest('.frame') || target.closest('.menu')) return;
 
