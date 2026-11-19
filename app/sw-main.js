@@ -7,7 +7,7 @@ const ACTIVE_CACHE_KEY = new URL('__istighosah_cache__/active', self.registratio
 const GITHUB_TREE_URL = 'https://api.github.com/repos/mrkey7/test/git/trees/main?recursive=1';
 
 // Daftar cache diambil dari seluruh file dalam app/ dan index.html di root.
-async function getPrecacheUrls(signal) {
+async function getPrecacheFiles(signal) {
   const response = await fetch(GITHUB_TREE_URL, {
     cache: 'no-store',
     signal
@@ -21,17 +21,23 @@ async function getPrecacheUrls(signal) {
     throw new Error('Daftar file GitHub tidak lengkap.');
   }
 
-  const paths = data.tree
+  const files = data.tree
     .filter(item => item.type === 'blob' && (
       item.path.startsWith('app/') || item.path === 'index.html'
     ))
-    .map(item => item.path);
+    .map(item => ({ path: item.path, sha: item.sha }));
 
-  if (!paths.includes('index.html') || !paths.some(path => path.startsWith('app/'))) {
-    throw new Error('Daftar file app/ atau index.html tidak ditemukan.');
+  if (!files.some(file => file.path === 'index.html') ||
+      !files.some(file => file.path.startsWith('app/')) ||
+      files.some(file => !file.sha)) {
+    throw new Error('Daftar file app/ atau index.html tidak lengkap.');
   }
 
-  return paths;
+  return files;
+}
+
+async function getPrecacheUrls(signal) {
+  return (await getPrecacheFiles(signal)).map(file => file.path);
 }
 
 async function getActiveCacheName() {
