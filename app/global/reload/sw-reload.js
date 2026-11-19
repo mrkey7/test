@@ -19,52 +19,26 @@ self.addEventListener('message', event => {
       const hasPreviousCache = cacheKeys.includes(previousName);
       const previous = hasPreviousCache ? await caches.open(previousName) : null;
 
-      // Konfigurasi skip dibaca dari cache lama hanya saat cache lama tersedia.
-      // Jika cache lama tidak ada, semua file akan diunduh tanpa menerapkan skip.
-      let skipRules = [];
-      if (previous && !forceFull) {
+      // Konfigurasi skip folder dibaca dari server hanya saat Reload Data dipanggil.
+      // Recovery penuh selalu mengabaikan seluruh aturan skip.
+      let skipFolders = [];
+      if (!forceFull) {
         const configUrl = new URL('./app/global/reload/reload.json', self.registration.scope).href;
-        const configResponse = await previous.match(configUrl);
-        if (configResponse) {
-          try {
-            const config = await configResponse.json();
-            if (Array.isArray(config.skipRules)) skipRules = config.skipRules;
-          } catch (error) {
-            console.warn('Konfigurasi skip rules tidak dapat dibaca:', error);
-          }
-        }
+        const configResponse = await fetch(new Request(configUrl, {
+          cache: 'no-store',
+          signal: controller.signal
+        }));
+        if (!configResponse.ok) throw new Error(`Konfigurasi Reload Data gagal dimuat (${configResponse.status}).`);
+        const config = await configResponse.json();
+        if (Array.isArray(config.skipFolders)) skipFolders = config.skipFolders;
       }
 
-      function matchesSkipRule(path) {
-        const normalizedPath = String(path).replace(/^\/+/, '');
-        const rules = Array.isArray(skipRules) ? skipRules : [];
-
-        // Prioritas pertama: folder. Jika cocok, aturan lain tidak perlu diperiksa.
-        const folderRule = rules.find(rule =>
-          rule?.type === 'folder' &&
-          (Array.isArray(rule.value) ? rule.value : [rule.value]).some(value => {
-            const folder = String(value || '').replace(/^\/+|\/+$/g, '');
-            return folder && (normalizedPath === folder || normalizedPath.startsWith(folder + '/'));
-          })
-        );
-        if (folderRule) return true;
-
-        const fileRule = rules.find(rule =>
-          rule?.type === 'file' &&
-          (Array.isArray(rule.value) ? rule.value : [rule.value]).some(value =>
-            String(value || '').replace(/^\/+/, '') === normalizedPath
-          )
-        );
-        if (fileRule) return true;
-
-        const extensionRule = rules.find(rule =>
-          rule?.type === 'extension' &&
-          (Array.isArray(rule.value) ? rule.value : [rule.value]).some(value => {
-            const extension = String(value || '').toLowerCase();
-            return extension && normalizedPath.toLowerCase().endsWith(extension.startsWith('.') ? extension : '.' + extension);
-          })
-        );
-        return Boolean(extensionRule);
+      function isSkippedFolder(path) {
+        const normalizedPath = String(path).split('/').filter(Boolean).join('/');
+        return skipFolders.some(value => {
+          const folder = String(value || '').split('/').filter(Boolean).join('/');
+          return folder && (normalizedPath === folder || normalizedPath.startsWith(folder + '/'));
+        });
       }
 
       stagingName = `${CACHE_PREFIX}stage-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -78,7 +52,7 @@ self.addEventListener('message', event => {
 
       for (const path of urls) {
         const url = new URL(path, self.registration.scope).href;
-        const shouldSkip = !forceFull && hasPreviousCache && matchesSkipRule(path);
+        const shouldSkip = !forceFull && hasPreviousCache && isSkippedFolder(path);
 
         // Skip hanya menggunakan cache lama jika file yang dimaksud benar-benar ada.
         // Cache lama yang hilang atau file yang tidak ada tetap akan diunduh.
