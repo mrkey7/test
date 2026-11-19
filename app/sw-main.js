@@ -126,6 +126,7 @@ self.addEventListener('message', event => {
         const isAsset = path.includes('/aset/');
 
         if (isAsset) {
+          port?.postMessage({ file: true, path, status: 'Diabaikan' });
           port?.postMessage({ detail: true, text: `Mempertahankan cache lama: ${path}` });
           const cachedAsset = await previous.match(url);
           if (!cachedAsset) throw new Error(`Aset tidak ditemukan di cache lama: ${path}`);
@@ -137,6 +138,7 @@ self.addEventListener('message', event => {
         }
 
         port?.postMessage({ progress: true, current, total, path, message: 'Mengambil data dari server…' });
+        port?.postMessage({ file: true, path, status: 'Diunduh' });
         port?.postMessage({ detail: true, text: `Mengunduh: ${path}` });
 
         const response = await fetch(new Request(url, { cache: 'no-store', signal: controller.signal }));
