@@ -5,6 +5,7 @@
     "skalaSempit": 0.7
   },
   "GoogleSearch": false,
+  "reloadDataDetailed": true,
   "gesture": {
     "default": true
   },
