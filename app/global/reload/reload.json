@@ -3,5 +3,23 @@
   "settingInfo": {
     "nama": "",
     "keterangan": "Mengambil ulang seluruh data dari server"
-  }
+  },
+  "skipRules": [
+    {
+      "type": "folder",
+      "value": [
+        "app/global/aset/",
+				"app/lokal/"
+      ]
+    },
+    {
+      "type": "file",
+      "value": [
+      ]
+    },
+    {
+      "type": "extension",
+      "value":  [".txt", ".lnk"]
+    }
+  ]
 }
