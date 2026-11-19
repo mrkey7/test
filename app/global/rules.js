@@ -798,7 +798,7 @@
       const overlay = document.createElement('div');
       overlay.id = 'istighosah-dialog';
       overlay.innerHTML = `
-        <section class="dialog-card reload-progress-card" role="dialog" aria-modal="true" aria-live="polite">
+        <section class="dialog-card reload-progress-card${detailed ? " reload-progress-card--detailed" : ""}" role="dialog" aria-modal="true" aria-live="polite">
           <p class="dialog-message reload-progress-title">Reload Data sedang berlangsung</p>
           <div class="reload-progress-track"><div class="reload-progress-fill"></div></div>
           <div class="reload-progress-meta"><strong class="reload-progress-status">0%</strong></div>
@@ -813,13 +813,22 @@
         style.id = 'istighosah-reload-progress-style';
         style.textContent = `
           #istighosah-dialog .reload-progress-card { width:min(100%,${detailed ? 680 : 390}px); }
+          #istighosah-dialog:has(.reload-progress-card--detailed) {
+            place-items:start center;
+            overflow-y:auto;
+          }
+          #istighosah-dialog .reload-progress-card--detailed {
+            display:flex;
+            flex-direction:column;
+            max-height:calc(100dvh - 40px);
+          }
           #istighosah-dialog .reload-progress-title { margin:0; font-weight:700; text-align:center; }
           #istighosah-dialog .reload-progress-track { height:9px; margin-top:22px; border-radius:99px; overflow:hidden; background:var(--menu-border,#ddd); }
           #istighosah-dialog .reload-progress-fill { width:0; height:100%; border-radius:inherit; background:var(--control-accent,#2457c5); transition:width .2s ease; }
           #istighosah-dialog .reload-progress-meta { display:flex; justify-content:center; margin-top:10px; color:var(--menu-fg,#222); font:700 13px Arial,sans-serif; }
           #istighosah-dialog .reload-progress-counts { margin-top:9px; color:var(--menu-fg,#222); font:12px Arial,sans-serif; text-align:center; font-variant-numeric:tabular-nums; }
           #istighosah-dialog .reload-progress-detail { margin-top:9px; max-height:92px; overflow:auto; color:var(--menu-muted,#666); font:12px/1.5 Arial,sans-serif; overflow-wrap:anywhere; text-align:left; }
-          #istighosah-dialog .reload-progress-files { display:grid; gap:5px; margin-top:10px; max-height:240px; overflow:auto; padding:8px; border:1px solid var(--menu-border,#ddd); border-radius:5px; text-align:left; }
+          #istighosah-dialog .reload-progress-files { display:grid; gap:5px; margin-top:10px; min-height:0; flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain; padding:8px; border:1px solid var(--menu-border,#ddd); border-radius:5px; text-align:left; }
           #istighosah-dialog .reload-progress-file { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; font:12px/1.4 Arial,sans-serif; }
           #istighosah-dialog .reload-progress-file-name { min-width:0; overflow-wrap:anywhere; color:var(--menu-fg,#222); }
           #istighosah-dialog .reload-progress-file-status { flex:0 0 auto; color:var(--menu-muted,#666); white-space:nowrap; }
