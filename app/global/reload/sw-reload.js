@@ -89,7 +89,7 @@ self.addEventListener('message', event => {
       for (const file of files) {
         const url = new URL(file.path, self.registration.scope).href;
         const cached = await staging.match(url);
-        const skippedByRule = mode === 'needed' && isSkippedPath(file.path) && cached;
+        const skippedByRule = canCompare && mode === 'needed' && isSkippedPath(file.path) && cached;
         const unchanged = canCompare && oldManifest[file.path] === file.sha && cached;
         const shouldKeep = mode === 'needed' && cached && (skippedByRule || unchanged);
 
