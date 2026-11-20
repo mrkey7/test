@@ -2,16 +2,7 @@
 
 
 
-  function isLocalDevelopmentHost() {
-    const host = location.hostname;
-    return host === 'localhost' || host === '127.0.0.1' || host === '::1'
-      || /^10\\./.test(host)
-      || /^192\\.168\\./.test(host)
-      || /^172\\.(1[6-9]|2[0-9]|3[0-1])\\./.test(host);
-  }
-
   function registerOfflineCache() {
-    if (isLocalDevelopmentHost()) return;
     if (!window.isSecureContext || !('serviceWorker' in navigator)) return;
     navigator.serviceWorker.register('../../sw.js').catch(error => {
       console.warn('Cache offline tidak dapat diaktifkan:', error);
