@@ -100,6 +100,65 @@
     });
   }
 
+  async function setupAndroidMenuSize(menuPanel) {
+    const storageKey = 'istighosah-ukuranmenu-plus';
+    let config = { default: 1, skala: { "1": 1, "2": 1.25, "3": 1.5 } };
+
+    try {
+      const response = await fetch('./rules.json');
+      if (response.ok) {
+        const rules = await response.json();
+        if (rules['ukuranmenu+']) config = { ...config, ...rules['ukuranmenu+'] };
+      }
+    } catch (error) {
+      console.warn('Konfigurasi ukuran menu Android tidak dapat dimuat.', error);
+    }
+
+    const options = [
+      { value: '1', label: '1 — Normal' },
+      { value: '2', label: '2 — Sedang' },
+      { value: '3', label: '3 — Lebar penuh' }
+    ];
+    const saved = localStorage.getItem(storageKey);
+    const initial = options.some(option => option.value === saved)
+      ? saved
+      : String(config.default || 1);
+
+    const group = document.createElement('div');
+    group.className = 'settings-control android-menu-size';
+    group.dataset.settingId = 'ukuranmenu+';
+
+    const heading = document.createElement('div');
+    heading.className = 'settings-control__heading';
+    const label = document.createElement('label');
+    label.textContent = 'Ukuran Menu+';
+    const select = document.createElement('select');
+    select.className = 'settings-select';
+    select.setAttribute('aria-label', 'Ukuran Menu+');
+
+    options.forEach(option => {
+      const item = document.createElement('option');
+      item.value = option.value;
+      item.textContent = option.label;
+      select.appendChild(item);
+    });
+
+    const apply = value => {
+      const scale = Number(config.skala?.[value] ?? ({ 1: 1, 2: 1.25, 3: 1.5 })[value]);
+      menuPanel.style.setProperty('--android-menu-zoom', String(scale));
+      select.value = value;
+      localStorage.setItem(storageKey, value);
+    };
+
+    select.value = initial;
+    heading.append(label);
+    group.append(heading, select);
+    const firstPage = menuPanel.querySelector(':scope > .android-settings-page');
+    menuPanel.insertBefore(group, firstPage || null);
+    select.addEventListener('change', () => apply(select.value));
+    apply(initial);
+  }
+
   let gestureEnabled = true;
   let gestureConfig = {};
 
@@ -319,6 +378,7 @@
     await loadSettings();
     const menuPanel = document.querySelector('#menu-panel');
     menuPanel.classList.add('settings-panel--pc'); // Kloning tampilan menu PC pada Android.
+    await setupAndroidMenuSize(menuPanel);
     await window.IstighosahSettings.init({
       panel: menuPanel,
       readings: target
