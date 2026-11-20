@@ -443,87 +443,87 @@
   const trigger = document.querySelector('.menu-trigger');
   const panel = document.querySelector('#menu-panel');
 
-  // Android: hanya submenu Font/Tema dipindahkan ke panel kedua.
+  // Android: Font dan Tema menjadi halaman submenu yang terpisah.
   function setupAndroidSettingsPages(menuPanel) {
-    const fontGroup = menuPanel.querySelector('[data-setting-id="jenisHuruf"]');
-    const themeGroup = menuPanel.querySelector('[data-setting-id="tema"]');
-    if (!fontGroup || !themeGroup) return;
+    const definitions = [
+      { id: 'jenisHuruf', label: 'Font' },
+      { id: 'tema', label: 'Tema' }
+    ];
+    const pages = [];
 
-    const combinedGroup = document.createElement('div');
-    combinedGroup.className = 'settings-choice settings-choice--cascade';
-    combinedGroup.dataset.settingId = 'tema-font';
+    definitions.forEach(definition => {
+      const sourceGroup = menuPanel.querySelector(`[data-setting-id="${definition.id}"]`);
+      const sourceSubmenu = sourceGroup?.querySelector('.settings-choice__submenu');
+      const select = sourceGroup?.querySelector('select');
+      if (!sourceGroup || !sourceSubmenu || !select) return;
 
-    const trigger = document.createElement('button');
-    trigger.type = 'button';
-    trigger.className = 'settings-choice__trigger';
-    trigger.textContent = 'Tema & Font  ›';
-    trigger.setAttribute('aria-haspopup', 'true');
-    trigger.setAttribute('aria-label', 'Tema & Font');
-    combinedGroup.appendChild(trigger);
+      const group = document.createElement('div');
+      group.className = 'settings-choice settings-choice--cascade';
+      group.dataset.settingId = `android-${definition.id}`;
 
-    menuPanel.insertBefore(combinedGroup, fontGroup);
-    fontGroup.hidden = true;
-    themeGroup.hidden = true;
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'settings-choice__trigger';
+      trigger.textContent = definition.label;
+      trigger.setAttribute('aria-haspopup', 'true');
+      trigger.setAttribute('aria-label', definition.label);
+      group.appendChild(trigger);
+      menuPanel.insertBefore(group, sourceGroup);
+      sourceGroup.hidden = true;
 
-    const page = document.createElement('div');
-    page.className = 'android-settings-page';
-    page.hidden = true;
-    menuPanel.appendChild(page);
-
-    function closePage() {
+      const page = document.createElement('div');
+      page.className = 'android-settings-page';
       page.hidden = true;
-      page.replaceChildren();
-      menuPanel.classList.remove('android-settings-page-open');
-    }
-    menuPanel.closeAndroidSettingsPage = closePage;
-
-    trigger.addEventListener('click', event => {
-      event.preventDefault();
-      page.replaceChildren();
 
       const heading = document.createElement('div');
       heading.className = 'android-settings-page-heading';
-
       const back = document.createElement('button');
       back.type = 'button';
       back.className = 'android-settings-page-back';
       back.setAttribute('aria-label', 'Kembali ke pengaturan');
-      back.innerHTML = '<span class="android-back-arrow">‹</span><span>Tema & Font</span>';
+      back.innerHTML = `<span class="android-back-arrow">‹</span><span>${definition.label}</span>`;
       heading.appendChild(back);
       page.appendChild(heading);
 
-      [
-        { title: 'Font', group: fontGroup },
-        { title: 'Tema', group: themeGroup }
-      ].forEach(section => {
-        const sectionTitle = document.createElement('div');
-        sectionTitle.className = 'android-settings-section-title';
-        sectionTitle.textContent = section.title;
-        const submenu = section.group.querySelector('.settings-choice__submenu');
-        if (submenu) {
-          const clone = submenu.cloneNode(true);
-          clone.querySelectorAll('.settings-choice__item').forEach((item, index) => {
-            const original = submenu.querySelectorAll('.settings-choice__item')[index];
-            item.addEventListener('click', event => {
-              event.preventDefault();
-              event.stopPropagation();
+      const clone = sourceSubmenu.cloneNode(true);
+      clone.querySelectorAll('.settings-choice__item').forEach(item => {
+        item.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (item.dataset.optionId) {
+            select.value = item.dataset.optionId;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          closePage();
+        });
+      });
+      page.appendChild(clone);
+      menuPanel.appendChild(page);
 
-              const select = section.group.querySelector('select');
-              if (select && item.dataset.optionId) {
-                select.value = item.dataset.optionId;
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-              }
-              closePage();
-            });
-          });
-          page.append(sectionTitle, clone);
-        }
+      function closePage() {
+        page.hidden = true;
+        menuPanel.classList.remove('android-settings-page-open');
+      }
+
+      trigger.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        pages.forEach(entry => { entry.page.hidden = true; });
+        page.hidden = false;
+        menuPanel.classList.add('android-settings-page-open');
+      });
+      back.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        closePage();
       });
 
-      page.hidden = false;
-      menuPanel.classList.add('android-settings-page-open');
-      back.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closePage(); });
+      pages.push({ page, closePage });
     });
+
+    menuPanel.closeAndroidSettingsPage = () => {
+      pages.forEach(entry => entry.closePage());
+    };
   }
 
   function setupAndroidAdvancedPage(menuPanel) {
