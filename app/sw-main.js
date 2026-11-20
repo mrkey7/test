@@ -4,7 +4,7 @@ const CACHE_PREFIX = 'istighosah-static-';
 const META_CACHE = 'istighosah-cache-meta-v1';
 const ACTIVE_CACHE_KEY = new URL('__istighosah_cache__/active', self.registration?.scope || self.location.href).href;
 
-const GITHUB_TREE_URL = 'https://api.github.com/repos/mrkey7/test/git/trees/main?recursive=1';
+const GITHUB_TREE_URL = 'https://api.github.com/repos/mrkey7/test-istighosyah/git/trees/main?recursive=1';
 
 // Daftar cache diambil dari seluruh file dalam app/ dan index.html di root.
 async function getPrecacheFiles(signal) {
