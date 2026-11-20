@@ -84,6 +84,14 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // BrowserSync/local server: jangan gunakan cache PWA saat pengembangan.
+  const host = url.hostname;
+  const isLocalDevelopmentHost = host === 'localhost' || host === '127.0.0.1' || host === '::1'
+    || /^10\\./.test(host)
+    || /^192\\.168\\./.test(host)
+    || /^172\\.(1[6-9]|2[0-9]|3[0-1])\\./.test(host);
+  if (isLocalDevelopmentHost) return;
+
   // Operasi normal selalu cache-first dan tidak pernah menghubungi jaringan.
   event.respondWith((async () => {
     const cacheName = await getActiveCacheName();
