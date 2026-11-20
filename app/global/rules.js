@@ -737,8 +737,7 @@
       writeSettings({ jarakBlok, ukuranHuruf, jarakBaris, harakat, jenisHuruf, tebal, tema, selangSeling });
     }
 
-    async function showHomeTransition(duration = 850) {
-      await window.IstighosahWelcome.show(duration);
+    function showHomeTransition() {
       location.reload();
     }
 
