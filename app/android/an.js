@@ -102,7 +102,8 @@
 
   async function setupAndroidMenuSize(menuPanel) {
     const advancedSubmenu = menuPanel.querySelector('.settings-advanced-submenu');
-    if (!advancedSubmenu || advancedSubmenu.querySelector('[data-setting-id="ukuranmenu+"]')) return;
+    const advancedPage = menuPanel.querySelector('.android-advanced-page');
+    if (!advancedSubmenu || !advancedPage || advancedSubmenu.querySelector('[data-setting-id="ukuranmenu+"]')) return;
 
     const storageKey = 'istighosah-ukuranmenu-plus';
     let config = { default: 1, skala: { "1": 1, "2": 1.25, "3": 1.5 } };
@@ -117,10 +118,6 @@
     trigger.textContent = 'Ukuran Menu+  ›';
     trigger.setAttribute('aria-haspopup', 'true');
     trigger.setAttribute('aria-label', 'Ukuran Menu+');
-
-    const submenu = document.createElement('div');
-    submenu.className = 'settings-choice__submenu';
-    submenu.setAttribute('role', 'menu');
 
     const options = [
       { value: '1', label: 'Kecil' },
@@ -143,10 +140,24 @@
       ? saved
       : String(config.default || 1);
 
+    const page = document.createElement('div');
+    page.className = 'android-settings-page android-menu-size-page';
+    page.hidden = true;
+
+    const heading = document.createElement('div');
+    heading.className = 'android-settings-page-heading';
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'android-settings-page-back';
+    back.setAttribute('aria-label', 'Kembali ke Advanced');
+    back.innerHTML = '<span class="android-back-arrow">‹</span><span>Ukuran Menu+</span>';
+    heading.appendChild(back);
+    page.appendChild(heading);
+
     const apply = value => {
       const scale = Number(config.skala?.[value] ?? ({ 1: 1, 2: 1.25, 3: 1.5 })[value]);
       menuPanel.style.setProperty('--android-menu-zoom', String(scale));
-      submenu.querySelectorAll('.settings-choice__item').forEach(item => {
+      page.querySelectorAll('.settings-choice__item').forEach(item => {
         item.setAttribute('aria-checked', String(item.dataset.optionId === value));
       });
       localStorage.setItem(storageKey, value);
@@ -161,11 +172,29 @@
       item.setAttribute('role', 'menuitemradio');
       item.setAttribute('aria-checked', String(option.value === initial));
       item.addEventListener('click', () => apply(option.value));
-      submenu.appendChild(item);
+      page.appendChild(item);
     });
 
-    group.append(trigger, submenu);
+    function closePage() {
+      page.hidden = true;
+      advancedPage.hidden = false;
+    }
+
+    trigger.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      advancedPage.hidden = true;
+      page.hidden = false;
+    });
+    back.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      closePage();
+    });
+
+    group.appendChild(trigger);
     advancedSubmenu.appendChild(group);
+    menuPanel.appendChild(page);
     apply(initial);
   }
 
