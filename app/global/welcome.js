@@ -36,7 +36,7 @@
 
     const overlay = document.createElement('div');
     overlay.id = OVERLAY_ID;
-    overlay.innerHTML = '<img alt="" src="../global/aset/logo.png">';
+    overlay.innerHTML = '<img alt="" src="./app/global/aset/logo.png">';
     overlay.style.setProperty('--welcome-duration', `${actualTime}ms`);
     document.body.appendChild(overlay);
 
