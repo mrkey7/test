@@ -1512,3 +1512,15 @@ html, body {
     font: 26px/1 Arial, sans-serif;
   }
 }
+
+
+/* Ukuran Menu+: zoom satu grup menu secara proporsional. */
+@media (max-width: 900px) {
+  #menu-panel.settings-panel--pc {
+    zoom: var(--android-menu-zoom, 1) !important;
+    max-height: calc(78dvh / var(--android-menu-zoom, 1)) !important;
+  }
+  #menu-panel.settings-panel--pc.android-settings-page-open {
+    max-height: calc(78dvh / var(--android-menu-zoom, 1)) !important;
+  }
+}
