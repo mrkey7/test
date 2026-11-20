@@ -1,9 +1,4 @@
 {
-  "menuResponsifPC": {
-    "ambangLebar": 550,
-    "skalaNormal": 1,
-    "skalaSempit": 0.7
-  },
   "GoogleSearch": false,
   "gesture": {
     "default": true
