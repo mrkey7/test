@@ -250,11 +250,9 @@
       const back = document.createElement('button');
       back.type = 'button';
       back.className = 'android-settings-page-back';
-      back.textContent = '‹';
       back.setAttribute('aria-label', 'Kembali ke menu');
-      const title = document.createElement('span');
-      title.textContent = 'Panduan Penggunaan';
-      heading.append(back, title);
+      back.innerHTML = '<span class="android-back-arrow">‹</span><span>Panduan Penggunaan</span>';
+      heading.appendChild(back);
 
       const content = document.createElement('div');
       content.className = 'android-help-content';
@@ -385,12 +383,9 @@
       const back = document.createElement('button');
       back.type = 'button';
       back.className = 'android-settings-page-back';
-      back.textContent = '‹';
       back.setAttribute('aria-label', 'Kembali ke pengaturan');
-
-      const title = document.createElement('span');
-      title.textContent = 'Tema & Font';
-      heading.append(back, title);
+      back.innerHTML = '<span class="android-back-arrow">‹</span><span>Tema & Font</span>';
+      heading.appendChild(back);
       page.appendChild(heading);
 
       [
@@ -457,11 +452,9 @@
       const back = document.createElement('button');
       back.type = 'button';
       back.className = 'android-settings-page-back';
-      back.textContent = '‹';
       back.setAttribute('aria-label', 'Kembali ke pengaturan');
-      const title = document.createElement('span');
-      title.textContent = 'Advanced';
-      heading.append(back, title);
+      back.innerHTML = '<span class="android-back-arrow">‹</span><span>Advanced</span>';
+      heading.appendChild(back);
       page.appendChild(heading);
 
       while (submenu.firstChild) page.appendChild(submenu.firstChild);
