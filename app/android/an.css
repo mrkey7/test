@@ -1473,3 +1473,42 @@ html, body {
     background: color-mix(in srgb, var(--control-accent) 18%, var(--menu-bg));
   }
 }
+
+
+/* Baris header kembali: seluruh area dapat disentuh, tanpa warna khusus pada panah. */
+@media (max-width: 900px) {
+  #menu-panel .android-settings-page-heading {
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  #menu-panel .android-settings-page-back {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: 100%;
+    min-height: 42px;
+    padding: 0 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    text-align: left;
+    font: 600 14px Arial, sans-serif;
+    cursor: pointer;
+  }
+
+  #menu-panel .android-settings-page-back:active {
+    background: color-mix(in srgb, var(--control-accent) 12%, transparent) !important;
+    filter: none !important;
+  }
+
+  #menu-panel .android-back-arrow {
+    display: inline-block;
+    flex: 0 0 auto;
+    font: 26px/1 Arial, sans-serif;
+  }
+}
