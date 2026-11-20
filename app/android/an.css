@@ -1434,3 +1434,42 @@ html, body {
     flex: 0 0 42px;
   }
 }
+
+
+/* Android submenu: latar berbeda agar halaman aktif jelas, tombol kembali mudah dikenali. */
+@media (max-width: 900px) {
+  #menu-panel.settings-panel--pc.android-settings-page-open > .android-settings-page {
+    background: color-mix(in srgb, var(--control-accent) 7%, var(--menu-bg)) !important;
+  }
+
+  #menu-panel .android-settings-page-heading {
+    background: color-mix(in srgb, var(--control-accent) 15%, var(--menu-bg));
+  }
+
+  #menu-panel .android-settings-page-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    background: var(--control-accent);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  #menu-panel .android-settings-page-back:active {
+    filter: brightness(.88);
+  }
+
+  #menu-panel .android-settings-page .settings-choice__item {
+    background: transparent;
+  }
+
+  #menu-panel .android-settings-page .settings-choice__item:hover,
+  #menu-panel .android-settings-page .settings-choice__item[aria-checked="true"] {
+    background: color-mix(in srgb, var(--control-accent) 18%, var(--menu-bg));
+  }
+}
