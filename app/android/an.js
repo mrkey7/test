@@ -108,23 +108,6 @@
     const storageKey = 'istighosah-ukuranmenu-plus';
     let config = { default: 1, skala: { "1": 1, "2": 1.25, "3": 1.5 } };
 
-    const group = document.createElement('div');
-    group.className = 'settings-choice settings-choice--cascade android-menu-size';
-    group.dataset.settingId = 'ukuranmenu+';
-
-    const trigger = document.createElement('button');
-    trigger.type = 'button';
-    trigger.className = 'settings-choice__trigger';
-    trigger.textContent = 'Ukuran Menu+  ›';
-    trigger.setAttribute('aria-haspopup', 'true');
-    trigger.setAttribute('aria-label', 'Ukuran Menu+');
-
-    const options = [
-      { value: '1', label: 'Kecil' },
-      { value: '2', label: 'Sedang' },
-      { value: '3', label: 'Besar' }
-    ];
-
     try {
       const response = await fetch('./rules.json');
       if (response.ok) {
@@ -135,29 +118,75 @@
       console.warn('Konfigurasi ukuran menu Android tidak dapat dimuat.', error);
     }
 
+    const options = [
+      { value: '1', label: 'Kecil' },
+      { value: '2', label: 'Sedang' },
+      { value: '3', label: 'Besar' }
+    ];
     const saved = localStorage.getItem(storageKey);
     const initial = options.some(option => option.value === saved)
       ? saved
       : String(config.default || 1);
 
-    const page = document.createElement('div');
-    page.className = 'android-settings-page android-menu-size-page';
-    page.hidden = true;
+    // Tahap 1: pemicu Ukuran Menu berada di halaman Advanced.
+    const group = document.createElement('div');
+    group.className = 'settings-choice settings-choice--cascade android-menu-size';
+    group.dataset.settingId = 'ukuranmenu+';
 
-    const heading = document.createElement('div');
-    heading.className = 'android-settings-page-heading';
-    const back = document.createElement('button');
-    back.type = 'button';
-    back.className = 'android-settings-page-back';
-    back.setAttribute('aria-label', 'Kembali ke Advanced');
-    back.innerHTML = '<span class="android-back-arrow">‹</span><span>Ukuran Menu+</span>';
-    heading.appendChild(back);
-    page.appendChild(heading);
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'settings-choice__trigger';
+    trigger.textContent = 'Ukuran Menu+';
+    trigger.setAttribute('aria-haspopup', 'true');
+    trigger.setAttribute('aria-label', 'Ukuran Menu+');
+    group.appendChild(trigger);
+    advancedSubmenu.appendChild(group);
+
+    // Tahap 2: halaman Ukuran Menu, mengikuti pola halaman Tema & Font.
+    const menuPage = document.createElement('div');
+    menuPage.className = 'android-settings-page android-menu-size-page';
+    menuPage.hidden = true;
+
+    const menuHeading = document.createElement('div');
+    menuHeading.className = 'android-settings-page-heading';
+    const menuBack = document.createElement('button');
+    menuBack.type = 'button';
+    menuBack.className = 'android-settings-page-back';
+    menuBack.setAttribute('aria-label', 'Kembali ke Advanced');
+    menuBack.innerHTML = '<span class="android-back-arrow">‹</span><span>Ukuran Menu+</span>';
+    menuHeading.appendChild(menuBack);
+    menuPage.appendChild(menuHeading);
+
+    const contentTrigger = document.createElement('button');
+    contentTrigger.type = 'button';
+    contentTrigger.className = 'settings-choice__trigger';
+    contentTrigger.textContent = 'Inti halaman';
+    contentTrigger.setAttribute('aria-haspopup', 'true');
+    contentTrigger.setAttribute('aria-label', 'Inti halaman');
+    const contentGroup = document.createElement('div');
+    contentGroup.className = 'settings-choice settings-choice--cascade';
+    contentGroup.appendChild(contentTrigger);
+    menuPage.appendChild(contentGroup);
+
+    // Tahap 3: inti halaman berisi pilihan ukuran.
+    const contentPage = document.createElement('div');
+    contentPage.className = 'android-settings-page android-menu-size-content-page';
+    contentPage.hidden = true;
+
+    const contentHeading = document.createElement('div');
+    contentHeading.className = 'android-settings-page-heading';
+    const contentBack = document.createElement('button');
+    contentBack.type = 'button';
+    contentBack.className = 'android-settings-page-back';
+    contentBack.setAttribute('aria-label', 'Kembali ke Ukuran Menu');
+    contentBack.innerHTML = '<span class="android-back-arrow">‹</span><span>Inti halaman</span>';
+    contentHeading.appendChild(contentBack);
+    contentPage.appendChild(contentHeading);
 
     const apply = value => {
       const scale = Number(config.skala?.[value] ?? ({ 1: 1, 2: 1.25, 3: 1.5 })[value]);
       menuPanel.style.setProperty('--android-menu-zoom', String(scale));
-      page.querySelectorAll('.settings-choice__item').forEach(item => {
+      contentPage.querySelectorAll('.settings-choice__item').forEach(item => {
         item.setAttribute('aria-checked', String(item.dataset.optionId === value));
       });
       localStorage.setItem(storageKey, value);
@@ -172,29 +201,47 @@
       item.setAttribute('role', 'menuitemradio');
       item.setAttribute('aria-checked', String(option.value === initial));
       item.addEventListener('click', () => apply(option.value));
-      page.appendChild(item);
+      contentPage.appendChild(item);
     });
 
-    function closePage() {
-      page.hidden = true;
+    const showMenuPage = () => {
+      advancedPage.hidden = true;
+      menuPage.hidden = false;
+      contentPage.hidden = true;
+    };
+    const showContentPage = () => {
+      menuPage.hidden = true;
+      contentPage.hidden = false;
+    };
+    const showAdvancedPage = () => {
+      menuPage.hidden = true;
+      contentPage.hidden = true;
       advancedPage.hidden = false;
-    }
+    };
 
     trigger.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      advancedPage.hidden = true;
-      page.hidden = false;
+      showMenuPage();
     });
-    back.addEventListener('click', event => {
+    contentTrigger.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      closePage();
+      showContentPage();
+    });
+    menuBack.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      showAdvancedPage();
+    });
+    contentBack.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      contentPage.hidden = true;
+      menuPage.hidden = false;
     });
 
-    group.appendChild(trigger);
-    advancedSubmenu.appendChild(group);
-    menuPanel.appendChild(page);
+    menuPanel.append(menuPage, contentPage);
     apply(initial);
   }
 
