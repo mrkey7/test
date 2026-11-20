@@ -738,7 +738,7 @@
     }
 
     function showHomeTransition() {
-      location.reload();
+      window.top.location.reload();
     }
 
     async function resetDefaults() {
