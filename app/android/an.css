@@ -1384,3 +1384,53 @@ html, body {
   opacity: 1;
   transform: translate(-50%, 0);
 }
+
+
+/* Android: satu panel tetap selebar 2/3 layar; halaman submenu menggantikan isi panel. */
+@media (max-width: 900px) {
+  #menu-panel.settings-panel--pc {
+    position: fixed !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 66.6667vw !important;
+    min-width: 0 !important;
+    max-width: 66.6667vw !important;
+    max-height: 78dvh !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  #menu-panel.settings-panel--pc.android-settings-page-open {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 66.6667vw !important;
+    max-width: 66.6667vw !important;
+    overflow: hidden !important;
+  }
+
+  #menu-panel.settings-panel--pc.android-settings-page-open > :not(.android-settings-page) {
+    display: none !important;
+  }
+
+  #menu-panel.settings-panel--pc.android-settings-page-open > .android-settings-page {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    border-left: 0 !important;
+    overflow: auto !important;
+  }
+
+  #menu-panel .android-settings-page-heading {
+    flex: 0 0 42px;
+  }
+}
