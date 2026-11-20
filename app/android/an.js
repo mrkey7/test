@@ -142,7 +142,7 @@
     group.appendChild(trigger);
     advancedSubmenu.appendChild(group);
 
-    // Tahap 2: halaman Ukuran Menu, mengikuti pola halaman Tema & Font.
+    // Tahap 2: halaman Ukuran Menu dengan header kembali dan pilihan di bawahnya.
     const menuPage = document.createElement('div');
     menuPage.className = 'android-settings-page android-menu-size-page';
     menuPage.hidden = true;
@@ -157,31 +157,6 @@
     menuHeading.appendChild(menuBack);
     menuPage.appendChild(menuHeading);
 
-    const contentTrigger = document.createElement('button');
-    contentTrigger.type = 'button';
-    contentTrigger.className = 'settings-choice__trigger';
-    contentTrigger.textContent = 'Inti halaman';
-    contentTrigger.setAttribute('aria-haspopup', 'true');
-    contentTrigger.setAttribute('aria-label', 'Inti halaman');
-    const contentGroup = document.createElement('div');
-    contentGroup.className = 'settings-choice settings-choice--cascade';
-    contentGroup.appendChild(contentTrigger);
-    menuPage.appendChild(contentGroup);
-
-    // Tahap 3: inti halaman berisi pilihan ukuran.
-    const contentPage = document.createElement('div');
-    contentPage.className = 'android-settings-page android-menu-size-content-page';
-    contentPage.hidden = true;
-
-    const contentHeading = document.createElement('div');
-    contentHeading.className = 'android-settings-page-heading';
-    const contentBack = document.createElement('button');
-    contentBack.type = 'button';
-    contentBack.className = 'android-settings-page-back';
-    contentBack.setAttribute('aria-label', 'Kembali ke Ukuran Menu');
-    contentBack.innerHTML = '<span class="android-back-arrow">‹</span><span>Inti halaman</span>';
-    contentHeading.appendChild(contentBack);
-    contentPage.appendChild(contentHeading);
 
     const apply = value => {
       const scale = Number(config.skala?.[value] ?? ({ 1: 1, 2: 1.25, 3: 1.5 })[value]);
@@ -207,20 +182,13 @@
     const showMenuPage = () => {
       advancedPage.hidden = true;
       menuPage.hidden = false;
-      contentPage.hidden = true;
-    };
-    const showContentPage = () => {
-      menuPage.hidden = true;
-      contentPage.hidden = false;
     };
     const showAdvancedPage = () => {
       menuPage.hidden = true;
-      contentPage.hidden = true;
       advancedPage.hidden = false;
     };
     menuPanel.closeAndroidMenuSizePages = () => {
       menuPage.hidden = true;
-      contentPage.hidden = true;
     };
 
     trigger.addEventListener('click', event => {
@@ -228,24 +196,13 @@
       event.stopPropagation();
       showMenuPage();
     });
-    contentTrigger.addEventListener('click', event => {
-      event.preventDefault();
-      event.stopPropagation();
-      showContentPage();
-    });
     menuBack.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
       showAdvancedPage();
     });
-    contentBack.addEventListener('click', event => {
-      event.preventDefault();
-      event.stopPropagation();
-      contentPage.hidden = true;
-      menuPage.hidden = false;
-    });
 
-    menuPanel.append(menuPage, contentPage);
+    menuPanel.append(menuPage);
     apply(initial);
   }
 
