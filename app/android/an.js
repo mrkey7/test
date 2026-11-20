@@ -290,7 +290,7 @@
       page.append(heading, content);
       page.hidden = false;
       menuPanel.classList.add('android-settings-page-open');
-      back.addEventListener('click', closePage);
+      back.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closePage(); });
     });
 
     const gestureItem = menuPanel.querySelector('[data-setting-id="gesture"]');
@@ -423,7 +423,7 @@
 
       page.hidden = false;
       menuPanel.classList.add('android-settings-page-open');
-      back.addEventListener('click', closePage);
+      back.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closePage(); });
     });
   }
 
@@ -467,7 +467,7 @@
       while (submenu.firstChild) page.appendChild(submenu.firstChild);
       page.hidden = false;
       menuPanel.classList.add('android-settings-page-open');
-      back.addEventListener('click', closePage);
+      back.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); closePage(); });
     });
   }
 
