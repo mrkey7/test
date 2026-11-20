@@ -1248,41 +1248,38 @@ html, body {
   box-sizing: border-box !important;
 }
 
-/* Android: submenu Font/Tema sebagai kolom kedua; menu utama tetap struktur PC. */
+/* Android: setiap submenu menggantikan isi panel, konsisten di semua viewport. */
 #menu-panel.settings-panel--pc[hidden] {
   display: none !important;
 }
 
 #menu-panel.settings-panel--pc.android-settings-page-open {
-  width: min(476px, calc(100vw - 18px)) !important;
-  max-width: calc(100vw - 18px) !important;
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: stretch;
+  display: flex !important;
+  flex-direction: column !important;
   overflow: hidden !important;
 }
 
-#menu-panel.settings-panel--pc.android-settings-page-open > .settings-toggle,
-#menu-panel.settings-panel--pc.android-settings-page-open > .settings-control,
-#menu-panel.settings-panel--pc.android-settings-page-open > .settings-action,
-#menu-panel.settings-panel--pc.android-settings-page-open > .settings-choice--cascade {
-  grid-column: 1;
+#menu-panel.settings-panel--pc.android-settings-page-open > :not(.android-settings-page) {
+  display: none !important;
 }
 
 #menu-panel .android-settings-page {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  grid-column: 2;
-  grid-row: 1 / span 99;
+  grid-column: auto;
+  grid-row: auto;
   min-width: 0;
+  min-height: 0;
   width: 100%;
-  border-left: 1px solid var(--menu-border);
+  border-left: 0;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: auto;
   animation: android-settings-page-in .2s ease both;
 }
 
-#menu-panel .android-settings-page[hidden] {
+#menu-panel .android-settings-page[hidden],
+#menu-panel.settings-panel--pc.android-settings-page-open > .android-settings-page[hidden] {
   display: none !important;
 }
 
@@ -1406,27 +1403,17 @@ html, body {
   }
 
   #menu-panel.settings-panel--pc.android-settings-page-open {
-    display: flex !important;
-    flex-direction: column !important;
     width: 66.6667vw !important;
     max-width: 66.6667vw !important;
-    overflow: hidden !important;
   }
 
-  #menu-panel.settings-panel--pc.android-settings-page-open > :not(.android-settings-page) {
-    display: none !important;
-  }
-
-  #menu-panel.settings-panel--pc.android-settings-page-open > .android-settings-page {
+  #menu-panel.settings-panel--pc.android-settings-page-open > .android-settings-page:not([hidden]) {
     display: flex !important;
     flex: 1 1 auto !important;
     width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
     min-height: 0 !important;
-    grid-column: auto !important;
-    grid-row: auto !important;
-    border-left: 0 !important;
     overflow: auto !important;
   }
 
