@@ -161,7 +161,7 @@
     const apply = value => {
       const scale = Number(config.skala?.[value] ?? ({ 1: 1, 2: 1.25, 3: 1.5 })[value]);
       menuPanel.style.setProperty('--android-menu-zoom', String(scale));
-      contentPage.querySelectorAll('.settings-choice__item').forEach(item => {
+      menuPage.querySelectorAll('.settings-choice__item').forEach(item => {
         item.setAttribute('aria-checked', String(item.dataset.optionId === value));
       });
       localStorage.setItem(storageKey, value);
@@ -176,7 +176,7 @@
       item.setAttribute('role', 'menuitemradio');
       item.setAttribute('aria-checked', String(option.value === initial));
       item.addEventListener('click', () => apply(option.value));
-      contentPage.appendChild(item);
+      menuPage.appendChild(item);
     });
 
     const showMenuPage = () => {
