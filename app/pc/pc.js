@@ -103,7 +103,7 @@
 
     let responsive = {};
     try {
-      const response = await fetch('../global/rules.json');
+      const response = await fetch('./rules.json');
       if (!response.ok) throw new Error(`Konfigurasi menu PC gagal dimuat (${response.status})`);
       const config = await response.json();
       responsive = config.menuResponsifPC || {};
