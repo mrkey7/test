@@ -101,9 +101,8 @@
   }
 
   async function setupAndroidMenuSize(menuPanel) {
-    const advancedSubmenu = menuPanel.querySelector('.settings-advanced-submenu');
-    const advancedPage = menuPanel.querySelector('.android-advanced-page');
-    if (!advancedSubmenu || !advancedPage || advancedSubmenu.querySelector('[data-setting-id="ukuranmenu+"]')) return;
+    const themeFontGroup = menuPanel.querySelector('[data-setting-id="tema-font"]');
+    if (!themeFontGroup || menuPanel.querySelector('[data-setting-id="ukuranmenu+"]')) return;
 
     const storageKey = 'istighosah-ukuranmenu-plus';
     let config = { default: 1, skala: { "1": 1, "2": 1.25, "3": 1.5 } };
@@ -128,7 +127,7 @@
       ? saved
       : String(config.default || 1);
 
-    // Tahap 1: pemicu Ukuran Menu berada di halaman Advanced.
+    // Ukuran Menu+ berada di menu utama, tepat setelah Tema & Font.
     const group = document.createElement('div');
     group.className = 'settings-choice settings-choice--cascade android-menu-size';
     group.dataset.settingId = 'ukuranmenu+';
@@ -140,7 +139,7 @@
     trigger.setAttribute('aria-haspopup', 'true');
     trigger.setAttribute('aria-label', 'Ukuran Menu+');
     group.appendChild(trigger);
-    advancedSubmenu.appendChild(group);
+    themeFontGroup.insertAdjacentElement('afterend', group);
 
     // Tahap 2: halaman Ukuran Menu dengan header kembali dan pilihan di bawahnya.
     const menuPage = document.createElement('div');
@@ -152,7 +151,7 @@
     const menuBack = document.createElement('button');
     menuBack.type = 'button';
     menuBack.className = 'android-settings-page-back';
-    menuBack.setAttribute('aria-label', 'Kembali ke Advanced');
+    menuBack.setAttribute('aria-label', 'Kembali ke pengaturan');
     menuBack.innerHTML = '<span class="android-back-arrow">‹</span><span>Ukuran Menu+</span>';
     menuHeading.appendChild(menuBack);
     menuPage.appendChild(menuHeading);
@@ -180,16 +179,14 @@
     });
 
     const showMenuPage = () => {
-      advancedPage.hidden = true;
       menuPage.hidden = false;
+      menuPanel.classList.add('android-settings-page-open');
     };
-    const showAdvancedPage = () => {
+    const showMainMenu = () => {
       menuPage.hidden = true;
-      advancedPage.hidden = false;
+      menuPanel.classList.remove('android-settings-page-open');
     };
-    menuPanel.closeAndroidMenuSizePages = () => {
-      menuPage.hidden = true;
-    };
+    menuPanel.closeAndroidMenuSizePages = showMainMenu;
 
     trigger.addEventListener('click', event => {
       event.preventDefault();
@@ -199,7 +196,7 @@
     menuBack.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      showAdvancedPage();
+      showMainMenu();
     });
 
     menuPanel.append(menuPage);
