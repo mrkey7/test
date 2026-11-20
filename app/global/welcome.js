@@ -15,12 +15,12 @@
       }
       #${OVERLAY_ID} img {
         width:min(34vw,150px); max-height:30vh; object-fit:contain;
+        transform-origin:center;
         animation:istighosah-welcome-zoom var(--welcome-duration, .85s) cubic-bezier(.2,.75,.25,1) forwards;
       }
       @keyframes istighosah-welcome-zoom {
-        0% { opacity:0; transform:scale(.55); }
-        22% { opacity:1; transform:scale(1); }
-        100% { opacity:0; transform:scale(18); }
+        from { transform:scale(1); }
+        to { transform:scale(18); }
       }
     `;
     document.head.appendChild(style);
@@ -28,8 +28,7 @@
 
   function show(duration = 850) {
     const time = Number.isFinite(Number(duration)) ? Math.max(0, Number(duration)) : 850;
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const actualTime = reducedMotion ? Math.min(time, 150) : time;
+    const actualTime = time;
 
     document.getElementById(OVERLAY_ID)?.remove();
     addStyles();
