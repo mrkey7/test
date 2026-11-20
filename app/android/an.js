@@ -218,6 +218,10 @@
       contentPage.hidden = true;
       advancedPage.hidden = false;
     };
+    menuPanel.closeAndroidMenuSizePages = () => {
+      menuPage.hidden = true;
+      contentPage.hidden = true;
+    };
 
     trigger.addEventListener('click', event => {
       event.preventDefault();
@@ -580,6 +584,7 @@
     menuPanel.appendChild(page);
 
     function closePage() {
+      menuPanel.closeAndroidMenuSizePages?.();
       page.hidden = true;
       const heading = page.querySelector('.android-settings-page-heading');
       if (heading) heading.remove();
