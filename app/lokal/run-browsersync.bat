@@ -7,7 +7,7 @@ if not defined _ip call :_getip
 
 cd /d "%~dp0..\.."
 
-start "" npm --prefix "%~dp0browsersync" run dev -- --host %_ip% --port %_port% --no-open --no-notify --no-ui --no-ghost-mode
+start "browsersync" npm --prefix "%~dp0browsersync" run dev -- --host %_ip% --port %_port% --no-open --no-notify --no-ui --no-ghost-mode
 if "%BukadiPC%"=="TRUE" (
 	timeout /t 2 /nobreak >nul
 	start "" chrome http://localhost:%_port%
