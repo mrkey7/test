@@ -737,36 +737,9 @@
       writeSettings({ jarakBlok, ukuranHuruf, jarakBaris, harakat, jenisHuruf, tebal, tema, selangSeling });
     }
 
-    function showHomeTransition() {
-      const overlay = document.createElement('div');
-      overlay.className = 'istighosah-home-transition';
-      overlay.innerHTML = '<img alt="" src="../global/aset/logo.png">';
-      if (!document.getElementById('istighosah-home-transition-style')) {
-        const style = document.createElement('style');
-        style.id = 'istighosah-home-transition-style';
-        style.textContent = `
-          .istighosah-home-transition {
-            position:fixed; inset:0; z-index:100001; display:grid; place-items:center;
-            background:rgba(12,18,30,.52); backdrop-filter:blur(9px);
-            -webkit-backdrop-filter:blur(9px); overflow:hidden;
-          }
-          .istighosah-home-transition img {
-            width:min(34vw,150px); max-height:30vh; object-fit:contain;
-            animation:istighosah-logo-zoom .85s cubic-bezier(.2,.75,.25,1) forwards;
-          }
-          @keyframes istighosah-logo-zoom {
-            0% { opacity:0; transform:scale(.55); }
-            22% { opacity:1; transform:scale(1); }
-            100% { opacity:0; transform:scale(18); }
-          }
-          @media(prefers-reduced-motion:reduce) {
-            .istighosah-home-transition img { animation-duration:.15s; }
-          }
-        `;
-        document.head.appendChild(style);
-      }
-      document.body.appendChild(overlay);
-      setTimeout(() => location.reload(), 850);
+    async function showHomeTransition(duration = 850) {
+      await window.IstighosahWelcome.show(duration);
+      location.reload();
     }
 
     async function resetDefaults() {
