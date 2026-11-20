@@ -101,7 +101,7 @@
   }
 
   async function setupAndroidMenuSize(menuPanel) {
-    const themeFontGroup = menuPanel.querySelector('[data-setting-id="tema-font"]');
+    const themeFontGroup = menuPanel.querySelector('[data-setting-id="android-tema"]');
     if (!themeFontGroup || menuPanel.querySelector('[data-setting-id="ukuranmenu+"]')) return;
 
     const storageKey = 'istighosah-ukuranmenu-plus';
