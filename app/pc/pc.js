@@ -106,7 +106,7 @@
       const response = await fetch('./rules.json');
       if (!response.ok) throw new Error(`Konfigurasi menu PC gagal dimuat (${response.status})`);
       const config = await response.json();
-      responsive = config.menuResponsifPC || {};
+      responsive = config.menuResponsif || {};
     } catch (error) {
       console.warn('Konfigurasi responsif menu PC menggunakan nilai bawaan:', error);
     }
